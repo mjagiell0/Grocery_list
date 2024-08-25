@@ -6,6 +6,7 @@ public class Product {
     private final String name;
     private final String category;
     private final Measure measure;
+    private final double minimumQuantity;
     private final double pricePerMeasure;
     private final int id;
 
@@ -15,6 +16,11 @@ public class Product {
         this.measure = measure;
         this.pricePerMeasure = pricePerMeasure;
         this.id = id;
+
+        if (measure == Measure.pcs)
+            minimumQuantity = 1.0;
+        else
+            minimumQuantity = 0.25;
     }
 
     public String getName() {
@@ -31,6 +37,10 @@ public class Product {
 
     public double getPricePerMeasure() {
         return pricePerMeasure;
+    }
+
+    public double getMinimumQuantity() {
+        return minimumQuantity;
     }
 
     public int getId() {
