@@ -13,6 +13,26 @@ public class GroceryClient {
         return groceryLists;
     }
 
+    public ArrayList<String> getGroceryListNames() {
+        if (groceryLists.isEmpty())
+            throw new ArrayStoreException("Client has no grocery lists");
+
+        ArrayList<String> groceryListNames = new ArrayList<>();
+
+        for (GroceryList list : getGroceryLists())
+            groceryListNames.add(list.getName());
+
+        return groceryListNames;
+    }
+
+    public GroceryList getGroceryList(String listName) {
+        for (GroceryList list : getGroceryLists())
+            if (list.getName().equals(listName))
+                return list;
+
+        throw new ArrayStoreException("Client has no grocery list with name: " + listName);
+    }
+
     public String getUserName() {
         return userName;
     }
