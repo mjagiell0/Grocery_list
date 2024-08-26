@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class GroceryListsForm extends JFrame {
+public class ListsForm extends JFrame {
     private JPanel contentPane;
     private JList list;
     private DefaultListModel<String> model;
@@ -32,7 +32,7 @@ public class GroceryListsForm extends JFrame {
 
     private GroceryClient groceryClient;
 
-    public GroceryListsForm() {
+    public ListsForm() {
         setTitle("Listy zakupów");
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -199,6 +199,6 @@ public class GroceryListsForm extends JFrame {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GroceryListsForm::new);
+        SwingUtilities.invokeLater(ListsForm::new);
     }
 }

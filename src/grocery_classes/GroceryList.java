@@ -1,6 +1,8 @@
 package grocery_classes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class GroceryList {
@@ -32,17 +34,15 @@ public class GroceryList {
         return productList;
     }
 
-    public String[] getCategories() {
+    public ArrayList<String> getCategories() {
         if (productList.isEmpty())
             throw new NoSuchElementException("Grocery list is empty");
 
-        String[] categories = new String[productList.size()];
-        int i = 0;
+        ArrayList<String> categories = new ArrayList<>();
 
-        for (Product product : productList.keySet()) {
-            categories[i] = product.getCategory();
-            i++;
-        }
+        for (Product product : productList.keySet())
+            if (!categories.contains(product.getCategory()))
+                categories.add(product.getCategory());
 
         return categories;
     }
