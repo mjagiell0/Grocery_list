@@ -35,7 +35,6 @@ public class GroceryListForm extends JFrame {
     private String categoryFilter = "-";
 
     public GroceryListForm() {
-        setTitle(groceryList.getName());
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 500);
@@ -142,6 +141,7 @@ public class GroceryListForm extends JFrame {
 
     public void setGroceryList(GroceryList groceryList) {
         this.groceryList = groceryList;
+        setTitle(groceryList.getName());
         setListModel();
         setCategoryBox();
     }

@@ -1,11 +1,16 @@
 package grocery_classes;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class GroceryList {
+public class GroceryList implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private HashMap<Product, Double> productList;
     private String name;
     private final int id;

@@ -1,13 +1,22 @@
 package grocery_classes;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GroceryClient {
+public class GroceryClient implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private ArrayList<GroceryList> groceryLists;
     private String userName;
     private int id;
 
-    public GroceryClient() {}
+    public GroceryClient(int id, String userName, ArrayList<GroceryList> groceryLists) {
+        this.id = id;
+        this.userName = userName;
+        this.groceryLists = groceryLists;
+    }
 
     public ArrayList<GroceryList> getGroceryLists() {
         return groceryLists;

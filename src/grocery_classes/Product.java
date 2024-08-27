@@ -2,7 +2,13 @@ package grocery_classes;
 
 import measure_enums.Measure;
 
-public class Product {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Product implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final String name;
     private final String category;
     private final Measure measure;

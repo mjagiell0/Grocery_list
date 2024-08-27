@@ -28,7 +28,7 @@ public class LoginForm extends JFrame {
         if (loginField.getText().isBlank() || !passwordField.echoCharIsSet())
             setMessage("Pola nie mogą być puste");
         else {
-            JPasswordField confirmPasswordField = new JPasswordField(10);
+            JPasswordField confirmPasswordField = new JPasswordField();
             int option = JOptionPane.showConfirmDialog(this, confirmPasswordField,
                     "Potwierdź hasło", JOptionPane.OK_CANCEL_OPTION);
 
@@ -81,7 +81,8 @@ public class LoginForm extends JFrame {
         return signUp;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginForm::new);
+    public void clearInputFields(){
+        loginField.setText("");
+        passwordField.setText("");
     }
 }
