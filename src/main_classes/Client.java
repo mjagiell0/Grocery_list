@@ -67,6 +67,8 @@ public class Client {
                     while (statusCode == 2) {
                         Thread.sleep(100);
 
+                        formsHandler.getListsForm().setButtonsEnable();
+
                         if (formsHandler.getListsForm().isLoggedOut()) {
                             statusCode = 1;
                             formsHandler.getListsForm().setVisible(false);

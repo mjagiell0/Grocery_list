@@ -188,11 +188,11 @@ public class ListsForm extends JFrame {
     }
 
     public boolean isSomeGroceryListSelected() {
-        return !model.isEmpty();
+        return !list.getSelectedValuesList().isEmpty();
     }
 
     public boolean isOneGroceryListSelected() {
-        return model.size() == 1;
+        return list.getSelectedValuesList().size() == 1;
     }
 
 
