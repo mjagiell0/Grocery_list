@@ -20,8 +20,6 @@ public class LoginForm extends JFrame {
         setSize(400, 300);
         setLocationRelativeTo(null);
 
-        setVisible(true);
-
         signInButton.addActionListener(_ -> onSignIn());
         signUpButton.addActionListener(_ -> onSignUp());
     }

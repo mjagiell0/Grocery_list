@@ -28,7 +28,7 @@ public class GroceryForm extends JFrame {
     private double tempValue;
     private HashMap<Product, Double> productsToAdd;
 
-    public GroceryForm(Grocery grocery) {
+    public GroceryForm() {
         setTitle("Sklep");
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -41,9 +41,6 @@ public class GroceryForm extends JFrame {
         categoryModel = new DefaultComboBoxModel<>();
         categoryBox.setModel(categoryModel);
 
-        this.grocery = grocery;
-
-        setVisible(true);
         addButton.addActionListener(_ -> onAdd());
         cancelButton.addActionListener(_ -> onCancel());
 
@@ -104,6 +101,10 @@ public class GroceryForm extends JFrame {
             listModel.addElement(new ProductForm(product, 0.0));
 
         list.repaint();
+    }
+
+    public void setGrocery(Grocery grocery) {
+        this.grocery = grocery;
     }
 
     public void setAdd(boolean add) {

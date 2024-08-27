@@ -34,7 +34,7 @@ public class GroceryListForm extends JFrame {
     private Product tempProduct;
     private String categoryFilter = "-";
 
-    public GroceryListForm(GroceryList groceryList) {
+    public GroceryListForm() {
         setTitle(groceryList.getName());
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,15 +44,11 @@ public class GroceryListForm extends JFrame {
         tempList = new ArrayList<>();
         listModel = new DefaultListModel<>();
         categoryModel = new DefaultComboBoxModel<>();
-        this.groceryList = groceryList;
 
         list.setModel(listModel);
         list.setCellRenderer(new ProductFormRenderer());
         categoryBox.setModel(categoryModel);
-        setListModel();
-        setCategoryBox();
 
-        setVisible(true);
         backButton.addActionListener(_ -> setBack(true));
         addButton.addActionListener(_ -> setAdd(true));
         deleteButton.addActionListener(_ -> onDelete());
@@ -146,6 +142,8 @@ public class GroceryListForm extends JFrame {
 
     public void setGroceryList(GroceryList groceryList) {
         this.groceryList = groceryList;
+        setListModel();
+        setCategoryBox();
     }
 
     public void setCategoryBox() {
@@ -230,6 +228,6 @@ public class GroceryListForm extends JFrame {
         groceryList.addProduct(product2, 1.0);
         groceryList.addProduct(product3, 250.0);
 
-        GroceryListForm groceryListForm = new GroceryListForm(groceryList);
+        GroceryListForm groceryListForm = new GroceryListForm();
     }
 }

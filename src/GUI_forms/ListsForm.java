@@ -40,7 +40,6 @@ public class ListsForm extends JFrame {
         setLocationRelativeTo(null);
         model = new DefaultListModel<>();
 
-        setVisible(true);
         logOutButton.addActionListener(_ ->setLoggedOut(true));
         addButton.addActionListener(_ -> onAdd());
         deleteButton.addActionListener(_ -> onDelete());
