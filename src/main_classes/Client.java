@@ -35,12 +35,15 @@ public class Client {
                     while (statusCode == 1) {
                         Thread.sleep(100);
 
-                        if (formsHandler.getLoginForm().isSignIn()) {
+                        if (formsHandler.getLoginForm().isSignIn() || formsHandler.getLoginForm().isSignUp()) {
                             String login = formsHandler.getLoginForm().getLogin();
                             String password = formsHandler.getLoginForm().getPassword();
 
                             notification.setData(new String[]{login, password});
-                            notification.setCode(SIGN_IN);
+                            if (formsHandler.getLoginForm().isSignIn())
+                                notification.setCode(SIGN_IN);
+                            else
+                                notification.setCode(SIGN_UP);
 
                             outputStream.writeObject(notification);
                             notification = (Notification) inputStream.readObject();
@@ -55,12 +58,21 @@ public class Client {
                                 System.out.println("Error: " + notification.getData()[0]);
 
                             formsHandler.getLoginForm().setSignIn(false);
+                            formsHandler.getLoginForm().setSignUp(false);
                         }
                     }
                 } else if (statusCode == 2) {
                     formsHandler.getListsForm().setVisible(true);
-                    while (statusCode == 2) {
 
+                    while (statusCode == 2) {
+                        Thread.sleep(100);
+
+                        if (formsHandler.getListsForm().isLoggedOut()) {
+                            statusCode = 1;
+                            formsHandler.getListsForm().setVisible(false);
+                            formsHandler.getListsForm().setLoggedOut(false);
+                            break;
+                        }
                     }
                 }
             }
