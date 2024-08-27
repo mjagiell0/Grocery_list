@@ -98,7 +98,7 @@ public class GroceryListForm extends JFrame {
                 if (option == JOptionPane.OK_OPTION) {
                     try {
                         tempValue = Double.parseDouble(quantityField.getText());
-                        if (tempValue <= 0)
+                        if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs)))
                             JOptionPane.showMessageDialog(null, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                         else {
                             selectedProductForm.setQuantity(tempValue);

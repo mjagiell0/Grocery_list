@@ -26,14 +26,15 @@ public class Grocery {
         }
     }
 
-    public String[] getCategories() {
+    public ArrayList<String> getCategories() {
         if (products.isEmpty())
             throw new NoSuchElementException("Grocery is empty");
 
-        String[] categories = new String[products.size() + 1];
-        categories[0] = "-";
-        for (int i = 0; i < categories.length; i++)
-            categories[i + 1] = products.get(i).getCategory();
+        ArrayList<String> categories = new ArrayList<>();
+        categories.add("-");
+        for (Product product : products)
+            if(!categories.contains(product.getCategory()))
+                categories.add(product.getCategory());
 
         return categories;
     }
