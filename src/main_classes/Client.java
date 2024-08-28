@@ -169,6 +169,30 @@ public class Client {
                             }
                             formsHandler.getListsForm().setShare(false);
                         }
+
+                        if (formsHandler.getListsForm().isGrocery()) {
+                            int listId = formsHandler.getListsForm().getTempId();
+                            GroceryList groceryList = groceryClient.getGroceryList(listId);
+
+                            formsHandler.getGroceryListForm().setGroceryList(groceryList);
+                            formsHandler.getListsForm().setVisible(false);
+                            formsHandler.getListsForm().setGrocery(false);
+                            statusCode = 3;
+                            break;
+                        }
+                    }
+                } else if (statusCode == 3) {
+                    formsHandler.getGroceryListForm().setVisible(true);
+
+                    while (statusCode == 3) {
+                        Thread.sleep(100);
+
+                        if (formsHandler.getGroceryListForm().isBack()) {
+                            formsHandler.getGroceryListForm().setVisible(false);
+                            formsHandler.getGroceryListForm().setBack(false);
+                            statusCode = 2;
+                            break;
+                        }
                     }
                 }
             }

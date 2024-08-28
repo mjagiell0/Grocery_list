@@ -48,7 +48,7 @@ public class GroceryListForm extends JFrame {
         list.setCellRenderer(new ProductFormRenderer());
         categoryBox.setModel(categoryModel);
 
-        backButton.addActionListener(_ -> setBack(true));
+        backButton.addActionListener(_ -> onBack());
         addButton.addActionListener(_ -> setAdd(true));
         deleteButton.addActionListener(_ -> onDelete());
         selectButton.addActionListener(_ -> onSelect());
@@ -58,6 +58,12 @@ public class GroceryListForm extends JFrame {
                 onMouse(e);
             }
         });
+    }
+
+    private void onBack() {
+        setBack(true);
+        categoryModel.removeAllElements();
+        listModel.removeAllElements();
     }
 
     private void onSelect() {
@@ -147,14 +153,18 @@ public class GroceryListForm extends JFrame {
     }
 
     public void setCategoryBox() {
-        ArrayList<String> categories = groceryList.getCategories();
+        try {
+            ArrayList<String> categories = groceryList.getCategories();
 
-        categoryModel.addElement("-");
+            categoryModel.addElement("-");
 
-        for (String category : categories)
-            categoryModel.addElement(category);
+            for (String category : categories)
+                categoryModel.addElement(category);
 
-        categoryBox.repaint();
+            categoryBox.repaint();
+        } catch (NoSuchElementException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void setListModel() {
