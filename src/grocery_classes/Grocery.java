@@ -1,9 +1,17 @@
 package grocery_classes;
 
+import GUI_forms.ProductForm;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
-public class Grocery {
+public class Grocery implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private ArrayList<Product> products;
 
     public Grocery(ArrayList<Product> products) {
@@ -31,12 +39,15 @@ public class Grocery {
             throw new NoSuchElementException("Grocery is empty");
 
         ArrayList<String> categories = new ArrayList<>();
-        categories.add("-");
         for (Product product : products)
             if(!categories.contains(product.getCategory()))
                 categories.add(product.getCategory());
 
         return categories;
+    }
+
+    public ArrayList<Product> getProducts() {
+        return products;
     }
 
     public void setProducts(ArrayList<Product> products) {

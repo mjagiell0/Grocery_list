@@ -145,6 +145,14 @@ public class GroceryListForm extends JFrame {
         this.quantity = quantity;
     }
 
+    public void setRemoveEnable() {
+        deleteButton.setEnabled(!list.getSelectedValuesList().isEmpty());
+    }
+
+    public int getGroceryListId() {
+        return groceryList.getId();
+    }
+
     public void setGroceryList(GroceryList groceryList) {
         this.groceryList = groceryList;
         setTitle(groceryList.getName());
@@ -227,17 +235,4 @@ public class GroceryListForm extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        GroceryList groceryList = new GroceryList("Lista", 1);
-
-        Product product1 = new Product("Mleko", "Nabiał", Measure.l, 2.50, 1);
-        Product product2 = new Product("Chleb", "Pieczywo", Measure.pcs, 3.20, 2);
-        Product product3 = new Product("Masło", "Nabiał", Measure.kg, 1.50, 3);
-
-        groceryList.addProduct(product1, 2.0);
-        groceryList.addProduct(product2, 1.0);
-        groceryList.addProduct(product3, 250.0);
-
-        GroceryListForm groceryListForm = new GroceryListForm();
-    }
 }

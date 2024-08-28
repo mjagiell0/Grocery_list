@@ -1,5 +1,6 @@
 package main_classes;
 
+import grocery_classes.Grocery;
 import grocery_classes.GroceryClient;
 import grocery_classes.GroceryList;
 import grocery_classes.Product;
@@ -25,6 +26,7 @@ import static measure_enums.Measure.*;
 
 public class Server {
     private final static DatabaseHandler databaseHandler;
+    private static Grocery grocery;
 
     static {
         try {
@@ -34,7 +36,9 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
+        groceryInit();
+
         try (ServerSocket serverSocket = new ServerSocket(2222)) {
             System.out.println("Server listening on port 2222...");
 
@@ -52,6 +56,38 @@ public class Server {
         }
     }
 
+    private static void groceryInit() throws SQLException {
+        ArrayList<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM Products";
+
+        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+            statement.execute();
+
+            ResultSet resultSet = statement.getResultSet();
+
+            while (resultSet.next()) {
+                int productId = resultSet.getInt(1);
+                String productName = resultSet.getString(2);
+                String category = resultSet.getString(3);
+                Measure measure = null;
+
+                switch (resultSet.getString(4)) {
+                    case "pcs" -> measure = pcs;
+                    case "kg" -> measure = kg;
+                    case "l" -> measure = l;
+                }
+
+                double price = resultSet.getDouble(5);
+
+                Product product = new Product(productName,category,measure,price,productId);
+
+                products.add(product);
+            }
+        }
+
+        grocery = new Grocery(products);
+    }
+
     static class ClientHandler implements Runnable {
         private final Socket clientSocket;
 
@@ -64,6 +100,7 @@ public class Server {
             try {
                 ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream inputStream = new ObjectInputStream(clientSocket.getInputStream());
+                outputStream.writeObject(grocery);
 
                 while (true) {
                     Thread.sleep(100);
@@ -78,32 +115,31 @@ public class Server {
                         deleteList(notification, outputStream);
                     else if (code == CHANGE_LIST_NAME)
                         changeListName(notification, outputStream);
-                    else if (code == SHARE_LIST) {
-                        String userName = (String) notification.getData()[0];
-                        ArrayList<Integer> list = (ArrayList<Integer>) notification.getData()[1];
-                        String sql = "{CALL AccessToList(?,?,?)}";
+                    else if (code == SHARE_LIST)
+                        shareList(notification, outputStream);
+                    else if (code == ADD_PRODUCT) {
+                        int listId = (int) notification.getData()[0];
+                        HashMap<Product,Double> productsToAdd = (HashMap<Product,Double>) notification.getData()[1];
+                        String sql = "{CALL AddItem(?,?,?,?)}";
 
                         int resultCode;
                         boolean flag = false;
 
-                        for (Integer listId : list) {
+                        for (Product product : productsToAdd.keySet()) {
                             try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
                                 statement.setInt(1, listId);
-                                statement.setString(2, userName);
-                                statement.registerOutParameter(3, Types.INTEGER);
+                                statement.setInt(2,product.getId());
+                                statement.setDouble(3,productsToAdd.get(product));
+                                statement.registerOutParameter(4, Types.INTEGER);
 
                                 statement.execute();
 
-                                resultCode = statement.getInt(3);
+                                resultCode = statement.getInt(4);
                             }
 
-                            if (resultCode == -1) {
+                            if (resultCode == 0 && !flag) {
                                 notification.setCode(ERROR);
-                                notification.setData(new String[]{"User not found"});
-                                flag = true;
-                            } else if (resultCode == -2) {
-                                notification.setCode(ERROR);
-                                notification.setData(new String[]{"User already has access to list"});
+                                notification.setData(new String[]{"Unsuccessful adding product to list " + listId});
                                 flag = true;
                             }
                         }
@@ -119,6 +155,42 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void shareList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            String userName = (String) notification.getData()[0];
+            ArrayList<Integer> list = (ArrayList<Integer>) notification.getData()[1];
+            String sql = "{CALL AccessToList(?,?,?)}";
+
+            int resultCode;
+            boolean flag = false;
+
+            for (Integer listId : list) {
+                try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                    statement.setInt(1, listId);
+                    statement.setString(2, userName);
+                    statement.registerOutParameter(3, Types.INTEGER);
+
+                    statement.execute();
+
+                    resultCode = statement.getInt(3);
+                }
+
+                if (resultCode == -1) {
+                    notification.setCode(ERROR);
+                    notification.setData(new String[]{"User not found"});
+                    flag = true;
+                } else if (resultCode == -2) {
+                    notification.setCode(ERROR);
+                    notification.setData(new String[]{"User already has access to list"});
+                    flag = true;
+                }
+            }
+
+            if (!flag)
+                notification.setCode(SUCCESS);
+
+            outputStream.writeObject(notification);
         }
 
         private static void changeListName(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {

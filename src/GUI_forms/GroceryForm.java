@@ -5,6 +5,7 @@ import grocery_classes.Product;
 import measure_enums.Measure;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class GroceryForm extends JFrame {
         productsToAdd = new HashMap<>();
         listModel = new DefaultListModel<>();
         list.setModel(listModel);
+        list.setCellRenderer(new ProductFormRenderer());
         categoryModel = new DefaultComboBoxModel<>();
         categoryBox.setModel(categoryModel);
 
@@ -45,6 +47,7 @@ public class GroceryForm extends JFrame {
         cancelButton.addActionListener(_ -> onCancel());
 
         list.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 onMouse(e);
             }
@@ -69,42 +72,58 @@ public class GroceryForm extends JFrame {
                 tempProduct = selectedProductForm.getProduct();
 
                 if (productsToAdd.containsKey(tempProduct)) {
-                    selectedProductForm.setCheckbox(false);
                     productsToAdd.remove(tempProduct);
+                    selectedProductForm.setCheckbox(false);
+                    selectedProductForm.setQuantity(0);
                 } else {
-                    JTextField quantityField = new JTextField();
-
-                    int option = JOptionPane.showConfirmDialog(null, quantityField, "Podaj ilość produktu", JOptionPane.OK_CANCEL_OPTION);
-                    if (option == JOptionPane.OK_OPTION) {
+                    String quantityStr = JOptionPane.showInputDialog(this, "Podaj ilość produktu", "Ilość", JOptionPane.PLAIN_MESSAGE);
+                    if (quantityStr != null) {
                         try {
-                            tempValue = Double.parseDouble(quantityField.getText());
-                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs)))
-                                JOptionPane.showMessageDialog(null, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
-                            else {
+                            tempValue = Double.parseDouble(quantityStr);
+                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs))) {
+                                JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                productsToAdd.put(tempProduct, tempValue);
                                 selectedProductForm.setQuantity(tempValue);
                                 selectedProductForm.setCheckbox(true);
-                                productsToAdd.put(tempProduct, tempValue);
-                                list.repaint();
                             }
                         } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(null, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
+                list.repaint();
             }
         }
     }
 
     public void setList() {
-        listModel.clear();
-        for (Product product : grocery.getProducts(categoryFilter))
-            listModel.addElement(new ProductForm(product, 0.0));
+        list.setEnabled(false);
+
+        this.listModel.clear();
+        DefaultListModel<ProductForm> listModel = new DefaultListModel<>();
+
+        ArrayList<Product> products = grocery.getProducts(categoryFilter);
+
+        for (Product product : products) {
+            ProductForm productForm = new ProductForm(product, productsToAdd.getOrDefault(product, 0.0));
+            if (productsToAdd.containsKey(product)) {
+                productForm.setCheckbox(true);
+            }
+            listModel.addElement(productForm);
+        }
+        list.setModel(listModel);
+        this.listModel = listModel;
+        list.setEnabled(true);
 
         list.repaint();
     }
 
+
     public void setGrocery(Grocery grocery) {
         this.grocery = grocery;
+        setCategoryBox();
+        setList();
     }
 
     public void setAdd(boolean add) {
@@ -119,21 +138,19 @@ public class GroceryForm extends JFrame {
         ArrayList<String> categories = grocery.getCategories();
 
         categoryModel.addElement("-");
-
-        for (String category : categories)
+        for (String category : categories) {
             categoryModel.addElement(category);
-
-        categoryBox.repaint();
+        }
     }
 
     public HashMap<Product, Double> getProductsToAdd() {
         return productsToAdd;
     }
 
-
-    public boolean isCategory() {
-        if (!categoryFilter.equals(categoryBox.getSelectedItem())) {
-            categoryFilter = (String) categoryBox.getSelectedItem();
+    public boolean isCategoryChanged() {
+        String selectedCategory = (String) categoryBox.getSelectedItem();
+        if (!categoryFilter.equals(selectedCategory)) {
+            categoryFilter = selectedCategory;
             return true;
         }
         return false;
@@ -145,5 +162,29 @@ public class GroceryForm extends JFrame {
 
     public boolean isCancel() {
         return cancel;
+    }
+
+    public void clean() {
+        productsToAdd.clear();
+        listModel.clear();
+    }
+
+    private static class ProductFormRenderer implements ListCellRenderer<ProductForm> {
+        @Override
+        public Component getListCellRendererComponent(JList<? extends ProductForm> list,
+                                                      ProductForm value,
+                                                      int index,
+                                                      boolean isSelected,
+                                                      boolean cellHasFocus) {
+            JPanel panel = (JPanel) value.getContentPane();
+
+            if (isSelected) {
+                panel.setBackground(list.getSelectionBackground());
+            } else {
+                panel.setBackground(list.getBackground());
+            }
+
+            return panel;
+        }
     }
 }
