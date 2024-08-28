@@ -177,6 +177,7 @@ public class Client {
                         }
                     }
                 } else if (statusCode == 3) {
+                    formsHandler.getGroceryListForm().setMessage("");
                     formsHandler.getGroceryListForm().setVisible(true);
 
                     while (statusCode == 3) {
@@ -194,6 +195,29 @@ public class Client {
                             statusCode = 4;
                         } else if (formsHandler.getGroceryListForm().isCategory()) {
                             formsHandler.getGroceryListForm().setListModel();
+                        } else if (formsHandler.getGroceryListForm().isDelete()) {
+                            List<Integer> productsIDs = formsHandler.getGroceryListForm().getSelectedProductsIDs();
+                            int listId = formsHandler.getGroceryListForm().getGroceryListId();
+
+                            notification.setCode(DELETE_PRODUCT);
+                            notification.setData(new Object[]{listId, productsIDs});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                GroceryList groceryList = groceryClient.getGroceryList(listId);
+
+                                for (Integer id : productsIDs)
+                                    groceryList.removeProduct(id);
+
+                                formsHandler.getGroceryListForm().updateListView(groceryList);
+
+                                formsHandler.getGroceryListForm().setMessage("Pomyślnie usunięto " + productsIDs.size() + " produktów.");
+                            } else
+                                System.out.println(notification.getData()[0]);
+
+                            formsHandler.getGroceryListForm().setDelete(false);
                         }
                     }
                 } else if (statusCode == 4) {
@@ -224,6 +248,8 @@ public class Client {
                                     double quantity = productsToAdd.get(product);
                                     groceryList.addProduct(product, quantity);
                                 }
+
+                                formsHandler.getGroceryListForm().setMessage("Pomyślnie dodano " + productsToAdd.size() + " produktów.");
                             } else
                                 System.out.println(notification.getData()[0]);
 

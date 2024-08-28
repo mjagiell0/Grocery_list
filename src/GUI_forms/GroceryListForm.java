@@ -20,6 +20,7 @@ public class GroceryListForm extends JFrame {
     private JButton deleteButton;
     private JComboBox<String> categoryBox;
     private JButton selectButton;
+    private JLabel message;
     private DefaultComboBoxModel<String> categoryModel;
 
     private boolean back = false;
@@ -146,7 +147,7 @@ public class GroceryListForm extends JFrame {
     }
 
     public void setRemoveEnable() {
-        deleteButton.setEnabled(!list.getSelectedValuesList().isEmpty());
+        deleteButton.setEnabled(!tempList.isEmpty());
     }
 
     public int getGroceryListId() {
@@ -197,10 +198,23 @@ public class GroceryListForm extends JFrame {
         list.repaint();
     }
 
+    public void setMessage (String message) {
+        this.message.setText(message);
+    }
+
     public void updateListView(GroceryList groceryList) {
         setGroceryList(groceryList);
         setCategoryBox();
         setListModel();
+    }
+
+    public List<Integer> getSelectedProductsIDs() {
+        List<Integer> productsIDs = new ArrayList<>();
+
+        for (Product product : tempList)
+            productsIDs.add(product.getId());
+
+        return productsIDs;
     }
 
     public boolean isBack() {

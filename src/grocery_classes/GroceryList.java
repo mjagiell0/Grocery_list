@@ -74,6 +74,14 @@ public class GroceryList implements Serializable {
         productList.remove(product);
     }
 
+    public void removeProduct(int id) {
+        for (Product product : productList.keySet())
+            if (product.getId() == id) {
+                productList.remove(product);
+                break;
+            }
+    }
+
     public void removeAllProducts() {
         productList.clear();
     }

@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static notification_classes.NotificationCode.*;
 import static measure_enums.Measure.*;
@@ -79,7 +80,7 @@ public class Server {
 
                 double price = resultSet.getDouble(5);
 
-                Product product = new Product(productName,category,measure,price,productId);
+                Product product = new Product(productName, category, measure, price, productId);
 
                 products.add(product);
             }
@@ -117,30 +118,30 @@ public class Server {
                         changeListName(notification, outputStream);
                     else if (code == SHARE_LIST)
                         shareList(notification, outputStream);
-                    else if (code == ADD_PRODUCT) {
+                    else if (code == ADD_PRODUCT)
+                        addProduct(notification, outputStream);
+                    else if (code == DELETE_PRODUCT) {
                         int listId = (int) notification.getData()[0];
-                        HashMap<Product,Double> productsToAdd = (HashMap<Product,Double>) notification.getData()[1];
-                        String sql = "{CALL AddItem(?,?,?,?)}";
+                        List<Integer> productsIDs = (List<Integer>) notification.getData()[1];
+                        String sql = "{CALL RemoveItem(?,?,?)}";
 
                         int resultCode;
                         boolean flag = false;
 
-                        for (Product product : productsToAdd.keySet()) {
+                        for (Integer productID : productsIDs) {
                             try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
                                 statement.setInt(1, listId);
-                                statement.setInt(2,product.getId());
-                                statement.setDouble(3,productsToAdd.get(product));
-                                statement.registerOutParameter(4, Types.INTEGER);
+                                statement.setInt(2, productID);
+                                statement.registerOutParameter(3, Types.INTEGER);
 
                                 statement.execute();
 
-                                resultCode = statement.getInt(4);
+                                resultCode = statement.getInt(3);
                             }
 
-                            if (resultCode == 0 && !flag) {
+                            if (resultCode != 0 && !flag) {
                                 notification.setCode(ERROR);
-                                notification.setData(new String[]{"Unsuccessful adding product to list " + listId});
-                                flag = true;
+                                notification.setData(new String[]{"Unsuccessful deleting some products in list " + listId});
                             }
                         }
 
@@ -155,6 +156,39 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void addProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            int listId = (int) notification.getData()[0];
+            HashMap<Product, Double> productsToAdd = (HashMap<Product, Double>) notification.getData()[1];
+            String sql = "{CALL AddItem(?,?,?,?)}";
+
+            int resultCode;
+            boolean flag = false;
+
+            for (Product product : productsToAdd.keySet()) {
+                try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                    statement.setInt(1, listId);
+                    statement.setInt(2, product.getId());
+                    statement.setDouble(3, productsToAdd.get(product));
+                    statement.registerOutParameter(4, Types.INTEGER);
+
+                    statement.execute();
+
+                    resultCode = statement.getInt(4);
+                }
+
+                if (resultCode == 0 && !flag) {
+                    notification.setCode(ERROR);
+                    notification.setData(new String[]{"Unsuccessful adding product to list " + listId});
+                    flag = true;
+                }
+            }
+
+            if (!flag)
+                notification.setCode(SUCCESS);
+
+            outputStream.writeObject(notification);
         }
 
         private static void shareList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
