@@ -192,6 +192,8 @@ public class Client {
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setAdd(false);
                             statusCode = 4;
+                        } else if (formsHandler.getGroceryListForm().isCategory()) {
+                            formsHandler.getGroceryListForm().setListModel();
                         }
                     }
                 } else if (statusCode == 4) {

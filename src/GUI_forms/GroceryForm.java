@@ -151,6 +151,7 @@ public class GroceryForm extends JFrame {
         String selectedCategory = (String) categoryBox.getSelectedItem();
         if (!categoryFilter.equals(selectedCategory)) {
             categoryFilter = selectedCategory;
+
             return true;
         }
         return false;

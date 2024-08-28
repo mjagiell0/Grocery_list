@@ -176,13 +176,24 @@ public class GroceryListForm extends JFrame {
     }
 
     public void setListModel() {
+        list.setEnabled(false);
+
+        this.listModel.clear();
+        DefaultListModel<ProductForm> listModel = new DefaultListModel<>();
+
         HashMap<Product, Double> productMap = groceryList.getProductList();
         Set<Product> products = productMap.keySet();
 
         for (Product product : products) {
-            double quantity = productMap.get(product);
-            listModel.addElement(new ProductForm(product, quantity));
+            if (product.getCategory().equals(categoryFilter) || categoryFilter.equals("-")) {
+                double quantity = productMap.get(product);
+                listModel.addElement(new ProductForm(product, quantity));
+            }
         }
+        list.setModel(listModel);
+        this.listModel = listModel;
+        list.setEnabled(true);
+
         list.repaint();
     }
 
@@ -211,6 +222,7 @@ public class GroceryListForm extends JFrame {
     public boolean isCategory() {
         if (!categoryFilter.equals(categoryBox.getSelectedItem())) {
             categoryFilter = (String) categoryBox.getSelectedItem();
+            tempList.clear();
             return true;
         }
         return false;
