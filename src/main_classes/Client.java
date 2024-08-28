@@ -1,8 +1,6 @@
 package main_classes;
 
 import GUI_forms.FormsHandler;
-import GUI_forms.GroceryForm;
-import GUI_forms.ProductForm;
 import grocery_classes.Grocery;
 import grocery_classes.GroceryClient;
 import grocery_classes.GroceryList;
@@ -18,7 +16,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+
 
 
 public class Client {
@@ -243,7 +241,7 @@ public class Client {
                             formsHandler.getGroceryListForm().setQuantity(false);
                         }
                     }
-                } else if (statusCode == 4) {
+                } else {
                     formsHandler.getGroceryForm().setVisible(true);
 
                     while (statusCode == 4) {

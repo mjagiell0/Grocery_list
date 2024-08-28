@@ -21,7 +21,7 @@ public class GroceryListForm extends JFrame {
     private JComboBox<String> categoryBox;
     private JButton selectButton;
     private JLabel message;
-    private DefaultComboBoxModel<String> categoryModel;
+    private final DefaultComboBoxModel<String> categoryModel;
 
     private boolean back = false;
     private boolean add = false;
@@ -30,7 +30,7 @@ public class GroceryListForm extends JFrame {
 
     private GroceryList groceryList;
 
-    private List<Product> tempList;
+    private final List<Product> tempList;
     private double tempValue;
     private Product tempProduct;
     private String categoryFilter = "-";
@@ -242,10 +242,12 @@ public class GroceryListForm extends JFrame {
     }
 
     public boolean isCategory() {
-        if (!categoryFilter.equals(categoryBox.getSelectedItem())) {
-            categoryFilter = (String) categoryBox.getSelectedItem();
-            tempList.clear();
-            return true;
+        if (categoryFilter != null){
+            if (!categoryFilter.equals(categoryBox.getSelectedItem())) {
+                categoryFilter = (String) categoryBox.getSelectedItem();
+                tempList.clear();
+                return true;
+            }
         }
         return false;
     }

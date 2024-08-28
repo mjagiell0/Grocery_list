@@ -110,6 +110,8 @@ public class Server {
 
                     if (code == SIGN_IN)
                         signIn(notification, outputStream);
+                    else if (code == SIGN_UP)
+                        signUp(notification, outputStream);
                     else if (code == ADD_LIST)
                         addList(notification, outputStream);
                     else if (code == DELETE_LIST)
@@ -128,6 +130,40 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void signUp(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            String login = (String) notification.getData()[0];
+            String password = (String) notification.getData()[1];
+            String sql = "{CALL AddUser(?,?,?,?)}";
+            int userId;
+
+            int resultCode;
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setString(1, login);
+                statement.setString(2, password);
+                statement.registerOutParameter(3, Types.INTEGER);
+                statement.registerOutParameter(4, Types.INTEGER);
+
+                statement.execute();
+
+                userId = statement.getInt(3);
+                resultCode = statement.getInt(4);
+            }
+
+            if (resultCode == 0) {
+                notification.setCode(SUCCESS);
+                ArrayList<GroceryList> groceryLists = new ArrayList<>();
+                GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
+
+                notification.setData(new Object[]{groceryClient});
+            } else {
+                notification.setCode(ERROR);
+                notification.setData(new String[]{"User already exists"});
+            }
+
+            outputStream.writeObject(notification);
         }
 
         private static void changeQuantity(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
