@@ -76,6 +76,32 @@ public class Server {
                         addList(notification, outputStream);
                     else if (code == DELETE_LIST)
                         deleteList(notification, outputStream);
+                    else if (code == CHANGE_LIST_NAME) {
+                        int userId = (int) notification.getData()[0];
+                        int listId = (int) notification.getData()[1];
+                        String listName = (String) notification.getData()[2];
+                        String sql = "{CALL ChangeListName(?,?,?,?)}";
+
+                        int resultCode;
+
+                        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                            statement.setInt(1, userId);
+                            statement.setInt(2, listId);
+                            statement.setString(3, listName);
+                            statement.registerOutParameter(4, Types.INTEGER);
+
+                            statement.execute();
+
+                            resultCode = statement.getInt(4);
+
+                            if (resultCode == 0)
+                                notification.setCode(SUCCESS);
+                            else
+                                notification.setCode(ERROR);
+
+                            outputStream.writeObject(notification);
+                        }
+                    }
 
 
                 }

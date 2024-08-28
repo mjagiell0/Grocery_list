@@ -5,6 +5,7 @@ import GUI_forms.ProductForm;
 import grocery_classes.GroceryClient;
 import grocery_classes.GroceryList;
 import notification_classes.Notification;
+
 import static notification_classes.NotificationCode.*;
 
 import java.io.IOException;
@@ -105,7 +106,7 @@ public class Client {
                             List<Integer> groceryIDsList = formsHandler.getListsForm().getSelectedGroceryListIDs();
 
                             notification.setCode(DELETE_LIST);
-                            notification.setData(new Object[]{groceryClient.getId(),groceryIDsList});
+                            notification.setData(new Object[]{groceryClient.getId(), groceryIDsList});
 
                             outputStream.writeObject(notification);
                             notification = (Notification) inputStream.readObject();
@@ -124,10 +125,30 @@ public class Client {
                                     groceryClient.removeGroceryList(id);
 
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
-                                formsHandler.getListsForm().setMessage("NIe wszystkie listy udało się usunąć");
+                                formsHandler.getListsForm().setMessage("Nie wszystkie listy udało się usunąć.");
                             }
 
                             formsHandler.getListsForm().setDelete(false);
+                        }
+
+                        if (formsHandler.getListsForm().isChangeName()) {
+                            String newListName = formsHandler.getListsForm().getTempListName();
+                            int id = formsHandler.getListsForm().getTempId();
+
+                            notification.setCode(CHANGE_LIST_NAME);
+                            notification.setData(new Object[]{groceryClient.getId(), id, newListName});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                groceryClient.getGroceryList(id).setName(newListName);
+                                formsHandler.getListsForm().setMessage("Pomyślnie zmieniono nazwę listy.");
+                                formsHandler.getListsForm().setGroceryClient(groceryClient);
+                            } else if (notification.getCode() == ERROR)
+                                formsHandler.getListsForm().setMessage("Nie udało się zmienić nazwy listy.");
+
+                            formsHandler.getListsForm().setChangeName(false);
                         }
                     }
                 }

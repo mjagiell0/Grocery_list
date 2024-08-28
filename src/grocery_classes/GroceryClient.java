@@ -42,6 +42,14 @@ public class GroceryClient implements Serializable {
         throw new ArrayStoreException("Client has no grocery list with name: " + listName);
     }
 
+    public GroceryList getGroceryList(int id) {
+        for (GroceryList list : getGroceryLists())
+            if (list.getId() == id)
+                return list;
+
+        throw new ArrayStoreException("Client has no grocery list with id: " + id);
+    }
+
     public String getUserName() {
         return userName;
     }
