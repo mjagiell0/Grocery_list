@@ -218,6 +218,29 @@ public class Client {
                                 System.out.println(notification.getData()[0]);
 
                             formsHandler.getGroceryListForm().setDelete(false);
+                        } else if (formsHandler.getGroceryListForm().isQuantity()) {
+                            int productId = formsHandler.getGroceryListForm().getTempProduct().getId();
+                            int listId = formsHandler.getGroceryListForm().getGroceryListId();
+                            double quantity = formsHandler.getGroceryListForm().getTempValue();
+
+                            notification.setCode(CHANGE_QUANTITY);
+                            notification.setData(new Object[]{listId, productId, quantity});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                GroceryList groceryList = groceryClient.getGroceryList(listId);
+
+                                groceryList.setCustomQuantity(productId, quantity);
+
+                                formsHandler.getGroceryListForm().setMessage("Pomyślnie zmieniono ilość produktu.");
+                            } else {
+                                System.out.println(notification.getData()[0]);
+                                formsHandler.getGroceryListForm().setMessage("Coś poszło nie tak");
+                            }
+
+                            formsHandler.getGroceryListForm().setQuantity(false);
                         }
                     }
                 } else if (statusCode == 4) {

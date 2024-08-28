@@ -217,6 +217,14 @@ public class GroceryListForm extends JFrame {
         return productsIDs;
     }
 
+    public double getTempValue() {
+        return tempValue;
+    }
+
+    public Product getTempProduct() {
+        return tempProduct;
+    }
+
     public boolean isBack() {
         return back;
     }

@@ -120,42 +120,64 @@ public class Server {
                         shareList(notification, outputStream);
                     else if (code == ADD_PRODUCT)
                         addProduct(notification, outputStream);
-                    else if (code == DELETE_PRODUCT) {
-                        int listId = (int) notification.getData()[0];
-                        List<Integer> productsIDs = (List<Integer>) notification.getData()[1];
-                        String sql = "{CALL RemoveItem(?,?,?)}";
-
-                        int resultCode;
-                        boolean flag = false;
-
-                        for (Integer productID : productsIDs) {
-                            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
-                                statement.setInt(1, listId);
-                                statement.setInt(2, productID);
-                                statement.registerOutParameter(3, Types.INTEGER);
-
-                                statement.execute();
-
-                                resultCode = statement.getInt(3);
-                            }
-
-                            if (resultCode != 0 && !flag) {
-                                notification.setCode(ERROR);
-                                notification.setData(new String[]{"Unsuccessful deleting some products in list " + listId});
-                            }
-                        }
-
-                        if (!flag)
-                            notification.setCode(SUCCESS);
-
-                        outputStream.writeObject(notification);
-                    }
-
-
+                    else if (code == DELETE_PRODUCT)
+                        deleteProduct(notification, outputStream);
+                    else if (code == CHANGE_QUANTITY)
+                        changeQuantity(notification, outputStream);
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void changeQuantity(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            int listId = (int) notification.getData()[0];
+            int productId = (int) notification.getData()[1];
+            double quantity = (double) notification.getData()[2];
+            String sql = "{CALL ChangeCount(?,?,?)}";
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setInt(1, listId);
+                statement.setInt(2, productId);
+                statement.setDouble(3, quantity);
+
+                statement.execute();
+            }
+
+            notification.setCode(SUCCESS);
+
+            outputStream.writeObject(notification);
+        }
+
+        private static void deleteProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            int listId = (int) notification.getData()[0];
+            List<Integer> productsIDs = (List<Integer>) notification.getData()[1];
+            String sql = "{CALL RemoveItem(?,?,?)}";
+
+            int resultCode;
+            boolean flag = false;
+
+            for (Integer productID : productsIDs) {
+                try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                    statement.setInt(1, listId);
+                    statement.setInt(2, productID);
+                    statement.registerOutParameter(3, Types.INTEGER);
+
+                    statement.execute();
+
+                    resultCode = statement.getInt(3);
+                }
+
+                if (resultCode != 0 && !flag) {
+                    notification.setCode(ERROR);
+                    notification.setData(new String[]{"Unsuccessful deleting some products in list " + listId});
+                }
+            }
+
+            if (!flag)
+                notification.setCode(SUCCESS);
+
+            outputStream.writeObject(notification);
         }
 
         private static void addProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {

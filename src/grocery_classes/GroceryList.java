@@ -89,4 +89,13 @@ public class GroceryList implements Serializable {
     public void setCustomQuantity(Product product, double quantity) {
         productList.put(product, quantity);
     }
+
+    public void setCustomQuantity(int productId, double quantity) {
+        for (Product product : productList.keySet()){
+            if (product.getId() == productId) {
+                productList.put(product, quantity);
+                break;
+            }
+        }
+    }
 }

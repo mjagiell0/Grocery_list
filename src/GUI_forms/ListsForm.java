@@ -176,7 +176,7 @@ public class ListsForm extends JFrame {
     }
 
     public int getTempId() {
-        return groceryClient.getGroceryList(list.getSelectedValuesList().getFirst()).getId();
+        return groceryClient.getGroceryList(list.getSelectedValuesList().getLast()).getId();
     }
 
     public boolean isLoggedOut() {
