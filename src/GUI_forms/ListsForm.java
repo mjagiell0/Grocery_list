@@ -19,6 +19,7 @@ public class ListsForm extends JFrame {
     private JButton deleteButton;
     private JButton changeNameButton;
     private JButton shareButton;
+    private JLabel message;
 
     private boolean loggedOut = false;
     private boolean add = false;
@@ -82,7 +83,7 @@ public class ListsForm extends JFrame {
     }
 
     private void onAdd() {
-        JTextField listName = new JPasswordField(10);
+        JTextField listName = new JTextField();
         int option = JOptionPane.showConfirmDialog(this, listName,
                 "Nazwa nowej listy", JOptionPane.OK_CANCEL_OPTION);
 
@@ -115,6 +116,8 @@ public class ListsForm extends JFrame {
     public void setGrocery(boolean grocery) {
         this.grocery = grocery;
     }
+
+    public void setMessage(String message) { this.message.setText(message); }
 
     public void setGroceryClient(GroceryClient groceryClient) {
         this.groceryClient = groceryClient;

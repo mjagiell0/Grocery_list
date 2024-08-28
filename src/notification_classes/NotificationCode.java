@@ -1,5 +1,5 @@
 package notification_classes;
 
 public enum NotificationCode {
-    SUCCESS, ERROR, SIGN_IN, SIGN_UP
+    SUCCESS, ERROR, SIGN_IN, SIGN_UP, ADD_LIST
 }

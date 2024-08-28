@@ -19,7 +19,7 @@ public class Client {
     public static void main(String[] args) throws IOException, InterruptedException, RuntimeException, ClassNotFoundException {
         try (Socket socket = new Socket("localhost", 2222)) {
             FormsHandler formsHandler = new FormsHandler();
-            GroceryClient groceryClient;
+            GroceryClient groceryClient = null;
 
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
@@ -62,6 +62,7 @@ public class Client {
                         }
                     }
                 } else if (statusCode == 2) {
+                    formsHandler.getListsForm().setMessage("");
                     formsHandler.getListsForm().setVisible(true);
 
                     while (statusCode == 2) {
@@ -74,6 +75,29 @@ public class Client {
                             formsHandler.getListsForm().setVisible(false);
                             formsHandler.getListsForm().setLoggedOut(false);
                             break;
+                        }
+
+                        if (formsHandler.getListsForm().isAdd()) {
+                            String newListName = formsHandler.getListsForm().getTempListName();
+
+                            notification.setCode(ADD_LIST);
+                            notification.setData(new Object[]{newListName, groceryClient.getId()});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                int newListId = (int) notification.getData()[0];
+
+                                GroceryList groceryList = new GroceryList(newListName, newListId);
+                                groceryClient.addGroceryList(groceryList);
+                                formsHandler.getListsForm().setGroceryClient(groceryClient);
+
+                                formsHandler.getListsForm().setMessage("Pomyślnie dodano listę " + newListName + ".");
+                            } else if (notification.getCode() == ERROR)
+                                System.out.println("Error: " + notification.getData()[0]);
+
+                            formsHandler.getListsForm().setAdd(false);
                         }
                     }
                 }
