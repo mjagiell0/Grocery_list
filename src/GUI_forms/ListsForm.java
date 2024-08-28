@@ -30,6 +30,7 @@ public class ListsForm extends JFrame {
 
     private String tempListName;
     private int tempId;
+    private String tempUserName;
 
     private GroceryClient groceryClient;
 
@@ -41,12 +42,16 @@ public class ListsForm extends JFrame {
         setLocationRelativeTo(null);
         model = new DefaultListModel<>();
 
-        logOutButton.addActionListener(_ ->setLoggedOut(true));
+        logOutButton.addActionListener(_ -> setLoggedOut(true));
         addButton.addActionListener(_ -> onAdd());
         deleteButton.addActionListener(_ -> onDelete());
         changeNameButton.addActionListener(_ -> onChangeName());
         shareButton.addActionListener(_ -> onShare());
-        list.addMouseListener(new MouseAdapter() { public void mouseClicked(MouseEvent e) {onMouse(e);}});
+        list.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                onMouse(e);
+            }
+        });
     }
 
     private void onMouse(MouseEvent e) {
@@ -61,23 +66,26 @@ public class ListsForm extends JFrame {
     }
 
     private void onShare() {
-        int option = JOptionPane.showConfirmDialog(this,"Na pewno udostępnić " + model.size() +" list?","Udostępnianie list",JOptionPane.YES_NO_OPTION);
-        if (option == JOptionPane.YES_OPTION)
+        JTextField textField = new JTextField();
+        int option = JOptionPane.showConfirmDialog(null, textField, "Wpisz nazwę użytkownika", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION && !textField.getText().isEmpty()) {
             setShare(true);
+            tempUserName = textField.getText();
+        }
     }
 
     private void onChangeName() {
         JTextField listName = new JTextField();
-        int option = JOptionPane.showConfirmDialog(this,listName,"Nowa nazwa listy",JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, listName, "Nowa nazwa listy", JOptionPane.OK_CANCEL_OPTION);
 
-        if(option == JOptionPane.OK_OPTION){
+        if (option == JOptionPane.OK_OPTION) {
             tempListName = listName.getText();
             setChangeName(true);
         }
     }
 
     private void onDelete() {
-        int option = JOptionPane.showConfirmDialog(this,"Na pewno usunąć " + list.getSelectedValuesList().size() + " list?", "Usuwanie list", JOptionPane.YES_NO_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, "Na pewno usunąć " + list.getSelectedValuesList().size() + " list?", "Usuwanie list", JOptionPane.YES_NO_OPTION);
         if (option == JOptionPane.YES_OPTION)
             setDelete(true);
     }
@@ -117,7 +125,9 @@ public class ListsForm extends JFrame {
         this.grocery = grocery;
     }
 
-    public void setMessage(String message) { this.message.setText(message); }
+    public void setMessage(String message) {
+        this.message.setText(message);
+    }
 
     public void setGroceryClient(GroceryClient groceryClient) {
         this.groceryClient = groceryClient;
@@ -155,6 +165,10 @@ public class ListsForm extends JFrame {
                 list.add(groceryList.getId());
 
         return list;
+    }
+
+    public String getTempUserName() {
+        return tempUserName;
     }
 
     public String getTempListName() {

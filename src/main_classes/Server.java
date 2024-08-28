@@ -76,31 +76,42 @@ public class Server {
                         addList(notification, outputStream);
                     else if (code == DELETE_LIST)
                         deleteList(notification, outputStream);
-                    else if (code == CHANGE_LIST_NAME) {
-                        int userId = (int) notification.getData()[0];
-                        int listId = (int) notification.getData()[1];
-                        String listName = (String) notification.getData()[2];
-                        String sql = "{CALL ChangeListName(?,?,?,?)}";
+                    else if (code == CHANGE_LIST_NAME)
+                        changeListName(notification, outputStream);
+                    else if (code == SHARE_LIST) {
+                        String userName = (String) notification.getData()[0];
+                        ArrayList<Integer> list = (ArrayList<Integer>) notification.getData()[1];
+                        String sql = "{CALL AccessToList(?,?,?)}";
 
                         int resultCode;
+                        boolean flag = false;
 
-                        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
-                            statement.setInt(1, userId);
-                            statement.setInt(2, listId);
-                            statement.setString(3, listName);
-                            statement.registerOutParameter(4, Types.INTEGER);
+                        for (Integer listId : list) {
+                            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                                statement.setInt(1, listId);
+                                statement.setString(2, userName);
+                                statement.registerOutParameter(3, Types.INTEGER);
 
-                            statement.execute();
+                                statement.execute();
 
-                            resultCode = statement.getInt(4);
+                                resultCode = statement.getInt(3);
+                            }
 
-                            if (resultCode == 0)
-                                notification.setCode(SUCCESS);
-                            else
+                            if (resultCode == -1) {
                                 notification.setCode(ERROR);
-
-                            outputStream.writeObject(notification);
+                                notification.setData(new String[]{"User not found"});
+                                flag = true;
+                            } else if (resultCode == -2) {
+                                notification.setCode(ERROR);
+                                notification.setData(new String[]{"User already has access to list"});
+                                flag = true;
+                            }
                         }
+
+                        if (!flag)
+                            notification.setCode(SUCCESS);
+
+                        outputStream.writeObject(notification);
                     }
 
 
@@ -108,6 +119,32 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void changeListName(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            int userId = (int) notification.getData()[0];
+            int listId = (int) notification.getData()[1];
+            String listName = (String) notification.getData()[2];
+            String sql = "{CALL ChangeListName(?,?,?,?)}";
+
+            int resultCode;
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setInt(1, userId);
+                statement.setInt(2, listId);
+                statement.setString(3, listName);
+                statement.registerOutParameter(4, Types.INTEGER);
+
+                statement.execute();
+
+                resultCode = statement.getInt(4);
+            }
+            if (resultCode == 0)
+                notification.setCode(SUCCESS);
+            else
+                notification.setCode(ERROR);
+
+            outputStream.writeObject(notification);
         }
 
         private static void deleteList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {

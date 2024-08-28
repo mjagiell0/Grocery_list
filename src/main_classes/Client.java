@@ -145,10 +145,29 @@ public class Client {
                                 groceryClient.getGroceryList(id).setName(newListName);
                                 formsHandler.getListsForm().setMessage("Pomyślnie zmieniono nazwę listy.");
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
-                            } else if (notification.getCode() == ERROR)
+                            } else
                                 formsHandler.getListsForm().setMessage("Nie udało się zmienić nazwy listy.");
 
                             formsHandler.getListsForm().setChangeName(false);
+                        }
+
+                        if (formsHandler.getListsForm().isShare()) {
+                            List<Integer> groceryListsIDs = formsHandler.getListsForm().getSelectedGroceryListIDs();
+                            String userName = formsHandler.getListsForm().getTempUserName();
+
+                            notification.setCode(SHARE_LIST);
+                            notification.setData(new Object[]{userName, groceryListsIDs});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS)
+                                formsHandler.getListsForm().setMessage("Pomyślnie udostępniono " + groceryListsIDs.size() + " list.");
+                            else {
+                                formsHandler.getListsForm().setMessage("Nie udało się udostępnić niektórych list.");
+                                System.out.println(notification.getData()[0]);
+                            }
+                            formsHandler.getListsForm().setShare(false);
                         }
                     }
                 }
