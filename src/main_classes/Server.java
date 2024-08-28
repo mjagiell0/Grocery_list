@@ -74,11 +74,49 @@ public class Server {
                         signIn(notification, outputStream);
                     else if (code == ADD_LIST)
                         addList(notification, outputStream);
+                    else if (code == DELETE_LIST)
+                        deleteList(notification, outputStream);
+
 
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void deleteList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            int userId = (int) notification.getData()[0];
+            ArrayList<Integer> listIDs = (ArrayList<Integer>) notification.getData()[1];
+            String sql = "{CALL RemoveList(?,?,?)}";
+
+            int resultCode;
+            boolean flag = false;
+            ArrayList<Integer> deletedLists = new ArrayList<>();
+
+            for (Integer listId : listIDs) {
+                try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                    statement.setInt(1, userId);
+                    statement.setInt(2, listId);
+                    statement.registerOutParameter(3, Types.INTEGER);
+
+                    statement.execute();
+
+                    resultCode = statement.getInt(3);
+
+                    if (resultCode == 1)
+                        flag = true;
+                    else if (resultCode == 0)
+                        deletedLists.add(listId);
+                }
+            }
+
+            if (flag) {
+                notification.setCode(ERROR);
+                notification.setData(new Object[]{deletedLists});
+            } else
+                notification.setCode(SUCCESS);
+
+            outputStream.writeObject(notification);
         }
 
         private static void addList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -156,12 +194,7 @@ public class Server {
                     while (resultSet.next()) {
                         String listName = resultSet.getString("ListName");
                         int listID = resultSet.getInt("ListID");
-//                        String productName = resultSet.getString("ProductName");
-//                        int productID = resultSet.getInt("ProductID");
-//                        String categoryName = resultSet.getString("CategoryName");
-//                        String measureType = resultSet.getString("Measure");
-//                        double price = resultSet.getDouble("Price");
-//                        double quantity = resultSet.getDouble("Amount");
+
                         GroceryList groceryList = new GroceryList(listName, listID);
                         groceryLists.add(groceryList);
                     }

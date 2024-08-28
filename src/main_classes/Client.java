@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -98,6 +99,35 @@ public class Client {
                                 System.out.println("Error: " + notification.getData()[0]);
 
                             formsHandler.getListsForm().setAdd(false);
+                        }
+
+                        if (formsHandler.getListsForm().isDelete()) {
+                            List<Integer> groceryIDsList = formsHandler.getListsForm().getSelectedGroceryListIDs();
+
+                            notification.setCode(DELETE_LIST);
+                            notification.setData(new Object[]{groceryClient.getId(),groceryIDsList});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                for (Integer id : groceryIDsList)
+                                    groceryClient.removeGroceryList(id);
+
+                                formsHandler.getListsForm().setGroceryClient(groceryClient);
+
+                                formsHandler.getListsForm().setMessage("Pomyślnie usunięto " + groceryIDsList.size() + " list.");
+                            } else {
+                                ArrayList<Integer> deletedLists = (ArrayList<Integer>) notification.getData()[0];
+
+                                for (Integer id : deletedLists)
+                                    groceryClient.removeGroceryList(id);
+
+                                formsHandler.getListsForm().setGroceryClient(groceryClient);
+                                formsHandler.getListsForm().setMessage("NIe wszystkie listy udało się usunąć");
+                            }
+
+                            formsHandler.getListsForm().setDelete(false);
                         }
                     }
                 }

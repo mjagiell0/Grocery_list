@@ -12,8 +12,8 @@ import java.util.NoSuchElementException;
 
 public class ListsForm extends JFrame {
     private JPanel contentPane;
-    private JList list;
-    private DefaultListModel<String> model;
+    private JList<String> list;
+    private final DefaultListModel<String> model;
     private JButton logOutButton;
     private JButton addButton;
     private JButton deleteButton;
@@ -123,8 +123,11 @@ public class ListsForm extends JFrame {
         this.groceryClient = groceryClient;
 
         model.clear();
-        model.addAll(groceryClient.getGroceryListNames());
-
+        try {
+            model.addAll(groceryClient.getGroceryListNames());
+        } catch (ArrayStoreException e) {
+            System.out.println(e.getMessage());
+        }
         list.setModel(model);
         list.repaint();
     }
@@ -136,14 +139,10 @@ public class ListsForm extends JFrame {
     }
 
     public List<String> getSelectedGroceryList() {
-        if (model.isEmpty())
+        if (list.getSelectedValuesList().isEmpty())
             throw new NoSuchElementException("No grocery list selected");
 
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < model.getSize(); i++)
-            list.add(model.getElementAt(i));
-
-        return list;
+        return list.getSelectedValuesList();
     }
 
     public List<Integer> getSelectedGroceryListIDs() {
@@ -152,7 +151,7 @@ public class ListsForm extends JFrame {
 
         List<Integer> list = new ArrayList<>();
         for (GroceryList groceryList : groceryClient.getGroceryLists())
-            if (model.contains(groceryList.getName()))
+            if (this.list.getSelectedValuesList().contains(groceryList.getName()))
                 list.add(groceryList.getId());
 
         return list;
@@ -196,11 +195,5 @@ public class ListsForm extends JFrame {
 
     public boolean isOneGroceryListSelected() {
         return list.getSelectedValuesList().size() == 1;
-    }
-
-
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ListsForm::new);
     }
 }
