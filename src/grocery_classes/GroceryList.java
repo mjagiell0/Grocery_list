@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public class GroceryList implements Serializable {
@@ -14,12 +13,6 @@ public class GroceryList implements Serializable {
     private HashMap<Product, Double> productList;
     private String name;
     private final int id;
-
-    public GroceryList(String name, int id, HashMap<Product, Double> productList) {
-        this.name = name;
-        this.id = id;
-        this.productList = productList;
-    }
 
     public GroceryList(String name, int id) {
         this.name = name;
@@ -58,20 +51,10 @@ public class GroceryList implements Serializable {
         this.name = name;
     }
 
-    public void setProductList(HashMap<Product, Double> productList) {
-        this.productList = productList;
-    }
-
     public void addProduct(Product product, double quantity) {
         if (quantity <= 0)
             throw new IllegalArgumentException("Quantity must be greater than 0");
         productList.put(product, quantity);
-    }
-
-    public void removeProduct(Product product) {
-        if (!productList.containsKey(product))
-            throw new IllegalArgumentException("Product does not exist.");
-        productList.remove(product);
     }
 
     public void removeProduct(int id) {
@@ -80,14 +63,6 @@ public class GroceryList implements Serializable {
                 productList.remove(product);
                 break;
             }
-    }
-
-    public void removeAllProducts() {
-        productList.clear();
-    }
-
-    public void setCustomQuantity(Product product, double quantity) {
-        productList.put(product, quantity);
     }
 
     public void setCustomQuantity(int productId, double quantity) {

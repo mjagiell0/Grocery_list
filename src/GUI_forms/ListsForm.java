@@ -148,13 +148,6 @@ public class ListsForm extends JFrame {
         shareButton.setEnabled(isSomeGroceryListSelected());
     }
 
-    public List<String> getSelectedGroceryList() {
-        if (list.getSelectedValuesList().isEmpty())
-            throw new NoSuchElementException("No grocery list selected");
-
-        return list.getSelectedValuesList();
-    }
-
     public List<Integer> getSelectedGroceryListIDs() {
         if (model.isEmpty())
             throw new NoSuchElementException("No grocery list selected");
@@ -176,7 +169,7 @@ public class ListsForm extends JFrame {
     }
 
     public int getTempId() {
-        return groceryClient.getGroceryList(list.getSelectedValuesList().getLast()).getId();
+        return tempId;
     }
 
     public boolean isLoggedOut() {
