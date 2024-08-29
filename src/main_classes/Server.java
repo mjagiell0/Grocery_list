@@ -127,38 +127,48 @@ public class Server {
                         deleteProduct(notification, outputStream);
                     else if (code == CHANGE_QUANTITY)
                         changeQuantity(notification, outputStream);
-                    else if (code == REFRESH_LISTS) {
-                        int userId = (int) notification.getData()[0];
-                        String login = (String) notification.getData()[1];
-                        String sql = "SELECT ul.ListID, l.ListName FROM UsersLists ul JOIN Lists l ON ul.ListID = l.ListID WHERE ul.UserID = ?;";
+                    else if (code == REFRESH_LISTS)
+                        refreshLists(notification, outputStream);
 
-                        ArrayList<GroceryList> groceryLists = new ArrayList<>();
-
-                        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
-                            statement.setInt(1, userId);
-
-                            statement.execute();
-
-                            ResultSet resultSet = statement.getResultSet();
-
-                            while (resultSet.next()) {
-                                String listName = resultSet.getString("ListName");
-                                int listID = resultSet.getInt("ListID");
-
-                                GroceryList groceryList = new GroceryList(listName, listID);
-                                groceryLists.add(groceryList);
-                            }
-                        }
-
-                        GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
-                        notification.setData(new Object[]{groceryClient});
-                    }
-
-                    outputStream.writeObject(notification);
-                    }
+                }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private void refreshLists(Notification notification, ObjectOutputStream outputStream) throws IOException {
+            int userId = (int) notification.getData()[0];
+            String login = (String) notification.getData()[1];
+            String sql = "SELECT ul.ListID, l.ListName FROM UsersLists ul JOIN Lists l ON ul.ListID = l.ListID WHERE ul.UserID = ?;";
+
+            ArrayList<GroceryList> groceryLists = new ArrayList<>();
+
+            notification.setCode(SUCCESS);
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setInt(1, userId);
+
+                statement.execute();
+
+                ResultSet resultSet = statement.getResultSet();
+
+                while (resultSet.next()) {
+                    String listName = resultSet.getString("ListName");
+                    int listID = resultSet.getInt("ListID");
+
+                    GroceryList groceryList = new GroceryList(listName, listID);
+                    groceryLists.add(groceryList);
+                }
+            } catch (SQLException e) {
+                notification.setCode(ERROR);
+                notification.setData(new String[]{e.getMessage()});
+            }
+
+            GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
+            notification.setData(new Object[]{groceryClient});
+
+
+            outputStream.writeObject(notification);
         }
 
         private static void groceryList(Notification notification, ObjectOutputStream outputStream) throws IOException {

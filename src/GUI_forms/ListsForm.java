@@ -54,9 +54,7 @@ public class ListsForm extends JFrame {
                 onMouse(e);
             }
         });
-        refreshButton.addActionListener(_ -> {
-
-        });
+        refreshButton.addActionListener(_ -> setRefresh(true));
     }
 
     private void onMouse(MouseEvent e) {

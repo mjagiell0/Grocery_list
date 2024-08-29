@@ -98,9 +98,11 @@ public class Client {
                                 groceryClient.addGroceryList(groceryList);
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
 
-                                formsHandler.getListsForm().setMessage("Pomyślnie dodano listę " + newListName + ".");
-                            } else if (notification.getCode() == ERROR)
+                                formsHandler.getListsForm().setMessage("Dodano listę " + newListName + ".");
+                            } else if (notification.getCode() == ERROR) {
                                 System.out.println("Error: " + notification.getData()[0]);
+                                formsHandler.getListsForm().setMessage("Błąd (dodawanie)");
+                            }
 
                             formsHandler.getListsForm().setAdd(false);
                         } else if (formsHandler.getListsForm().isDelete()) {
@@ -118,7 +120,7 @@ public class Client {
 
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
 
-                                formsHandler.getListsForm().setMessage("Pomyślnie usunięto " + groceryIDsList.size() + " list.");
+                                formsHandler.getListsForm().setMessage("Usunięto " + groceryIDsList.size() + " list.");
                             } else {
                                 ArrayList<Integer> deletedLists = (ArrayList<Integer>) notification.getData()[0];
 
@@ -126,7 +128,7 @@ public class Client {
                                     groceryClient.removeGroceryList(id);
 
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
-                                formsHandler.getListsForm().setMessage("Nie wszystkie listy udało się usunąć.");
+                                formsHandler.getListsForm().setMessage("Błąd (usuwanie)");
                             }
 
                             formsHandler.getListsForm().setDelete(false);
@@ -142,10 +144,10 @@ public class Client {
 
                             if (notification.getCode() == SUCCESS) {
                                 groceryClient.getGroceryList(id).setName(newListName);
-                                formsHandler.getListsForm().setMessage("Pomyślnie zmieniono nazwę listy.");
+                                formsHandler.getListsForm().setMessage("Pomyślnie zmieniono nazwę.");
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
                             } else
-                                formsHandler.getListsForm().setMessage("Nie udało się zmienić nazwy listy.");
+                                formsHandler.getListsForm().setMessage("Błąd (zmiana nazwy).");
 
                             formsHandler.getListsForm().setChangeName(false);
                         } else if (formsHandler.getListsForm().isShare()) {
@@ -159,9 +161,9 @@ public class Client {
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS)
-                                formsHandler.getListsForm().setMessage("Pomyślnie udostępniono " + groceryListsIDs.size() + " list.");
+                                formsHandler.getListsForm().setMessage("Udostępniono " + groceryListsIDs.size() + " list.");
                             else {
-                                formsHandler.getListsForm().setMessage("Nie udało się udostępnić niektórych list.");
+                                formsHandler.getListsForm().setMessage("Błąd (udostępnianie).");
                                 System.out.println(notification.getData()[0]);
                             }
                             formsHandler.getListsForm().setShare(false);
@@ -175,17 +177,21 @@ public class Client {
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
-                                HashMap<Product, Double> products = (HashMap<Product, Double>) notification.getData()[0];
+                                try {
+                                    HashMap<Product, Double> products = (HashMap<Product, Double>) notification.getData()[0];
 
-                                GroceryList groceryList = groceryClient.getGroceryList(listId);
-                                groceryList.setProductList(products);
+                                    GroceryList groceryList = groceryClient.getGroceryList(listId);
+                                    groceryList.setProductList(products);
 
-                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
-                                formsHandler.getListsForm().setVisible(false);
+                                    formsHandler.getGroceryListForm().setGroceryList(groceryList);
+                                    formsHandler.getListsForm().setVisible(false);
 
-                                statusCode = 3;
+                                    statusCode = 3;
+                                } catch (ClassCastException e) {
+                                    System.out.println(e.getMessage());
+                                }
                             } else {
-                                formsHandler.getListsForm().setMessage("Coś poszło nie tak (pobieranie listy)");
+                                formsHandler.getListsForm().setMessage("Błąd (pobieranie listy)");
                                 System.out.println(notification.getData()[0]);
                             }
 
@@ -203,11 +209,13 @@ public class Client {
                             if (notification.getCode() == SUCCESS) {
                                 groceryClient = (GroceryClient) notification.getData()[0];
 
+                                formsHandler.getListsForm().setMessage("Odświeżono");
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
-                            } else
+                            } else if (notification.getCode() == ERROR) {
                                 System.out.println("Error: " + notification.getData()[0]);
+                                formsHandler.getListsForm().setMessage("Coś poszło nie tak");
+                            }
 
-                            formsHandler.getListsForm().setMessage("Odświeżono");
                             formsHandler.getListsForm().setRefresh(false);
                         }
                     }
