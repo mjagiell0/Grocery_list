@@ -164,6 +164,8 @@ public class GroceryListForm extends JFrame {
     }
 
     public void setCategoryBox() {
+        categoryModel.removeAllElements();
+
         categoryModel.addElement("-");
         try {
             ArrayList<String> categories = groceryList.getCategories();

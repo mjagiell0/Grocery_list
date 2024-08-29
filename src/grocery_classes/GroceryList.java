@@ -51,6 +51,10 @@ public class GroceryList implements Serializable {
         this.name = name;
     }
 
+    public void setProductList(HashMap<Product, Double> productList) {
+        this.productList = productList;
+    }
+
     public void addProduct(Product product, double quantity) {
         if (quantity <= 0)
             throw new IllegalArgumentException("Quantity must be greater than 0");

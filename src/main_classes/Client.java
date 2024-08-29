@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 
 
-
 public class Client {
     public static void main(String[] args) throws IOException, InterruptedException, RuntimeException, ClassNotFoundException {
         try (Socket socket = new Socket("localhost", 2222)) {
@@ -70,6 +69,7 @@ public class Client {
                         }
                     }
                 } else if (statusCode == 2) {
+                    formsHandler.getListsForm().setTitle("Listy zakupów - " + groceryClient.getUserName());
                     formsHandler.getListsForm().setMessage("");
                     formsHandler.getListsForm().setVisible(true);
 
@@ -167,12 +167,30 @@ public class Client {
                             formsHandler.getListsForm().setShare(false);
                         } else if (formsHandler.getListsForm().isGrocery()) {
                             int listId = formsHandler.getListsForm().getTempId();
-                            GroceryList groceryList = groceryClient.getGroceryList(listId);
+                            int userId = groceryClient.getId();
 
-                            formsHandler.getGroceryListForm().setGroceryList(groceryList);
-                            formsHandler.getListsForm().setVisible(false);
+                            notification.setCode(GROCERY_LIST);
+                            notification.setData(new Integer[]{listId, userId});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                HashMap<Product, Double> products = (HashMap<Product, Double>) notification.getData()[0];
+
+                                GroceryList groceryList = groceryClient.getGroceryList(listId);
+                                groceryList.setProductList(products);
+
+                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
+                                formsHandler.getListsForm().setVisible(false);
+
+                                statusCode = 3;
+                            } else {
+                                formsHandler.getListsForm().setMessage("Coś poszło nie tak (pobieranie listy)");
+                                System.out.println(notification.getData()[0]);
+                            }
+
                             formsHandler.getListsForm().setGrocery(false);
-                            statusCode = 3;
                         }
                     }
                 } else if (statusCode == 3) {

@@ -119,6 +119,8 @@ public class Server {
                         changeListName(notification, outputStream);
                     else if (code == SHARE_LIST)
                         shareList(notification, outputStream);
+                    else if (code == GROCERY_LIST)
+                        groceryList(notification, outputStream);
                     else if (code == ADD_PRODUCT)
                         addProduct(notification, outputStream);
                     else if (code == DELETE_PRODUCT)
@@ -129,6 +131,48 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void groceryList(Notification notification, ObjectOutputStream outputStream) throws IOException {
+            int listId = (int) notification.getData()[0];
+            HashMap<Product, Double> products = new HashMap<>();
+            String sql = "SELECT p.ProductName, p.CategoryName, li.Amount, p.Measure, p.Price, p.ProductID FROM ListItems li JOIN Products p ON li.ProductID = p.ProductID WHERE ListID = ?;";
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setInt(1, listId);
+
+                statement.execute();
+
+                ResultSet resultSet = statement.getResultSet();
+
+                while (resultSet.next()) {
+                    String productName = resultSet.getString("ProductName");
+                    String categoryName = resultSet.getString("CategoryName");
+                    double quantity = resultSet.getDouble("Amount");
+                    double price = resultSet.getDouble("Price");
+                    int productID = resultSet.getInt("ProductID");
+                    Measure measure = null;
+
+                    switch (resultSet.getString("Measure")) {
+                        case "pcs" -> measure = pcs;
+                        case "kg" -> measure = kg;
+                        case "l" -> measure = l;
+                    }
+
+                    Product product = new Product(productName, categoryName, measure, price, productID);
+
+                    products.put(product, quantity);
+                }
+            } catch (SQLException e) {
+                notification.setCode(ERROR);
+                notification.setData(new String[]{e.getMessage()});
+            }
+
+            if (notification.getCode() != ERROR) {
+                notification.setCode(SUCCESS);
+                notification.setData(new Object[]{products});
+            }
+            outputStream.writeObject(notification);
         }
 
         private static void signUp(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -425,38 +469,6 @@ public class Server {
                         groceryLists.add(groceryList);
                     }
                 }
-
-                sql = "SELECT p.ProductName, p.CategoryName, li.Amount, p.Measure, p.Price, p.ProductID FROM ListItems li JOIN Products p ON li.ProductID = p.ProductID WHERE ListID = ?;";
-
-                for (GroceryList groceryList : groceryLists) {
-                    try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
-                        statement.setInt(1, groceryList.getId());
-
-                        statement.execute();
-
-                        ResultSet resultSet = statement.getResultSet();
-
-                        while (resultSet.next()) {
-                            String productName = resultSet.getString("ProductName");
-                            String categoryName = resultSet.getString("CategoryName");
-                            double quantity = resultSet.getDouble("Amount");
-                            double price = resultSet.getDouble("Price");
-                            int productID = resultSet.getInt("ProductID");
-                            Measure measure = null;
-
-                            switch (resultSet.getString("Measure")) {
-                                case "pcs" -> measure = pcs;
-                                case "kg" -> measure = kg;
-                                case "l" -> measure = l;
-                            }
-
-                            Product product = new Product(productName, categoryName, measure, price, productID);
-
-                            groceryList.addProduct(product, quantity);
-                        }
-                    }
-                }
-
 
                 GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
                 notification.setData(new Object[]{groceryClient});
