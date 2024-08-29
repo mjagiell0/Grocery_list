@@ -251,7 +251,9 @@ public class Server {
             int listId = (int) notification.getData()[0];
             int productId = (int) notification.getData()[1];
             double quantity = (double) notification.getData()[2];
-            String sql = "{CALL ChangeCount(?,?,?)}";
+            String sql = "{CALL ChangeCount(?,?,?,?)}";
+
+            int resultCode = 0;
 
             notification.setCode(SUCCESS);
 
@@ -259,11 +261,17 @@ public class Server {
                 statement.setInt(1, listId);
                 statement.setInt(2, productId);
                 statement.setDouble(3, quantity);
+                statement.registerOutParameter(4, Types.INTEGER);
 
                 statement.execute();
+
+                resultCode = statement.getInt(4);
             } catch (SQLException e) {
                 notification.setCode(ERROR);
             }
+
+            if (resultCode == 0)
+                notification.setCode(ERROR);
 
             outputStream.writeObject(notification);
         }
@@ -274,7 +282,6 @@ public class Server {
             String sql = "{CALL RemoveItem(?,?,?)}";
 
             int resultCode;
-            boolean flag = false;
 
             for (Integer productID : productsIDs) {
                 try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
@@ -287,13 +294,13 @@ public class Server {
                     resultCode = statement.getInt(3);
                 }
 
-                if (resultCode != 0 && !flag) {
+                if (resultCode != 0) {
                     notification.setCode(ERROR);
                     notification.setData(new String[]{"Unsuccessful deleting some products in list " + listId});
                 }
             }
 
-            if (!flag)
+            if (notification.getCode() != ERROR)
                 notification.setCode(SUCCESS);
 
             outputStream.writeObject(notification);

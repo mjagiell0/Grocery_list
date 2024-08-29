@@ -258,13 +258,15 @@ public class Client {
 
                                 formsHandler.getGroceryListForm().updateListView(groceryList);
 
-                                formsHandler.getGroceryListForm().setMessage("Pomyślnie usunięto " + productsIDs.size() + " produktów.");
-                            } else
+                                formsHandler.getGroceryListForm().setMessage("Usunięto " + productsIDs.size() + " produktów.");
+                            } else {
                                 System.out.println(notification.getData()[0]);
+                                formsHandler.getGroceryListForm().setMessage("Produkt usunięty przez innego użytkownika.");
+                            }
 
                             formsHandler.getGroceryListForm().setDelete(false);
                             formsHandler.getGroceryListForm().clearTempList();
-                        } else if (formsHandler.getGroceryListForm().isQuantity()) {
+                        } else if (formsHandler.getGroceryListForm().isQuantity()) { // TODO: Sprawdź jak zachowa się program przy zmianie ilości produktu z dwóch kont
                             int productId = formsHandler.getGroceryListForm().getTempProduct().getId();
                             int listId = formsHandler.getGroceryListForm().getGroceryListId();
                             double quantity = formsHandler.getGroceryListForm().getTempValue();
@@ -280,7 +282,7 @@ public class Client {
 
                                 groceryList.setCustomQuantity(productId, quantity);
 
-                                formsHandler.getGroceryListForm().setMessage("Pomyślnie zmieniono ilość produktu.");
+                                formsHandler.getGroceryListForm().setMessage("Zmieniono ilość produktu.");
                             } else {
                                 System.out.println(notification.getData()[0]);
                                 formsHandler.getGroceryListForm().setMessage("Produkt usunięty przez innego użytkownika.");
