@@ -37,11 +37,11 @@ public class LoginForm extends JFrame {
                 String confirmPassword = new String(confirmPasswordField.getPassword());
 
                 if (password.equals(confirmPassword)) {
-                    signUp = true;
+                    setSignUp(true);
                     setMessage("Pomyślnie zarejestrowano");
-                } else {
+                } else
                     setMessage("Hasła się nie zgadzają");
-                }
+
             }
         }
     }
@@ -49,8 +49,10 @@ public class LoginForm extends JFrame {
     private void onSignIn() {
         if (loginField.getText().isBlank() || !passwordField.echoCharIsSet())
             setMessage("Pola nie mogą być puste");
-        else
-            signIn = true;
+        else {
+            setSignIn(true);
+            setMessage("Pomyślnie zalogowano");
+        }
     }
 
     public void setMessage(String message) {

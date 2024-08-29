@@ -36,6 +36,7 @@ public class Client {
 
             while (true) {
                 if (statusCode == 1) {
+                    formsHandler.getLoginForm().setMessage("");
                     formsHandler.getLoginForm().clearInputFields();
                     formsHandler.getLoginForm().setVisible(true);
 
@@ -269,6 +270,8 @@ public class Client {
                                     double quantity = productsToAdd.get(product);
                                     groceryList.addProduct(product, quantity);
                                 }
+
+                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
 
                                 formsHandler.getGroceryListForm().setMessage("Pomyślnie dodano " + productsToAdd.size() + " produktów.");
                             } else

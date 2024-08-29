@@ -38,7 +38,7 @@ public class GroceryListForm extends JFrame {
     public GroceryListForm() {
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 500);
+        setSize(650, 500);
         setLocationRelativeTo(null);
 
         tempList = new ArrayList<>();
@@ -68,17 +68,19 @@ public class GroceryListForm extends JFrame {
     }
 
     private void onSelect() {
-        for (int i = 0; i < listModel.getSize(); i++) {
-            ProductForm productForm = listModel.getElementAt(i);
-            if (categoryFilter.equals("-") || productForm.getProduct().getCategory().equals(categoryFilter)) {
-                productForm.setCheckbox(!productForm.isChecked());
-                if (productForm.isChecked())
-                    tempList.add(productForm.getProduct());
-                else
-                    tempList.remove(productForm.getProduct());
+        if (!listModel.isEmpty()) {
+            for (int i = 0; i < listModel.getSize(); i++) {
+                ProductForm productForm = listModel.getElementAt(i);
+                if (categoryFilter.equals("-") || productForm.getProduct().getCategory().equals(categoryFilter)) {
+                    productForm.setCheckbox(!productForm.isChecked());
+                    if (productForm.isChecked())
+                        tempList.add(productForm.getProduct());
+                    else
+                        tempList.remove(productForm.getProduct());
+                }
             }
+            list.repaint();
         }
-        list.repaint();
     }
 
 
@@ -157,23 +159,23 @@ public class GroceryListForm extends JFrame {
     public void setGroceryList(GroceryList groceryList) {
         this.groceryList = groceryList;
         setTitle(groceryList.getName());
-        setListModel();
         setCategoryBox();
+        setListModel();
     }
 
     public void setCategoryBox() {
+        categoryModel.addElement("-");
         try {
             ArrayList<String> categories = groceryList.getCategories();
 
-            categoryModel.addElement("-");
-
             for (String category : categories)
                 categoryModel.addElement(category);
-
-            categoryBox.repaint();
         } catch (NoSuchElementException e) {
             System.out.println(e.getMessage());
         }
+
+        categoryFilter = "-";
+        categoryBox.repaint();
     }
 
     public void setListModel() {
@@ -185,10 +187,12 @@ public class GroceryListForm extends JFrame {
         HashMap<Product, Double> productMap = groceryList.getProductList();
         Set<Product> products = productMap.keySet();
 
-        for (Product product : products) {
-            if (product.getCategory().equals(categoryFilter) || categoryFilter.equals("-")) {
-                double quantity = productMap.get(product);
-                listModel.addElement(new ProductForm(product, quantity));
+        if (!products.isEmpty()) {
+            for (Product product : products) {
+                if (product.getCategory().equals(categoryFilter) || categoryFilter.equals("-")) {
+                    double quantity = productMap.get(product);
+                    listModel.addElement(new ProductForm(product, quantity));
+                }
             }
         }
         list.setModel(listModel);
@@ -198,7 +202,7 @@ public class GroceryListForm extends JFrame {
         list.repaint();
     }
 
-    public void setMessage (String message) {
+    public void setMessage(String message) {
         this.message.setText(message);
     }
 
@@ -242,7 +246,7 @@ public class GroceryListForm extends JFrame {
     }
 
     public boolean isCategory() {
-        if (categoryFilter != null){
+        if (categoryFilter != null) {
             if (!categoryFilter.equals(categoryBox.getSelectedItem())) {
                 categoryFilter = (String) categoryBox.getSelectedItem();
                 tempList.clear();
