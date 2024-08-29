@@ -21,12 +21,14 @@ public class GroceryListForm extends JFrame {
     private JComboBox<String> categoryBox;
     private JButton selectButton;
     private JLabel message;
+    private JButton refreshButton;
     private final DefaultComboBoxModel<String> categoryModel;
 
     private boolean back = false;
     private boolean add = false;
     private boolean delete = false;
     private boolean quantity = false;
+    private boolean refresh = false;
 
     private GroceryList groceryList;
 
@@ -59,6 +61,7 @@ public class GroceryListForm extends JFrame {
                 onMouse(e);
             }
         });
+        refreshButton.addActionListener(_ -> setRefresh(true));
     }
 
     private void onBack() {
@@ -148,7 +151,11 @@ public class GroceryListForm extends JFrame {
         this.quantity = quantity;
     }
 
-    public void setRemoveEnable() {
+    public void setRefresh(boolean refresh) {
+        this.refresh = refresh;
+    }
+
+    public void setDeleteEnable() {
         deleteButton.setEnabled(!tempList.isEmpty());
     }
 
@@ -214,6 +221,10 @@ public class GroceryListForm extends JFrame {
         setListModel();
     }
 
+    public void clearTempList() {
+        tempList.clear();
+    }
+
     public List<Integer> getSelectedProductsIDs() {
         List<Integer> productsIDs = new ArrayList<>();
 
@@ -245,6 +256,10 @@ public class GroceryListForm extends JFrame {
 
     public boolean isQuantity() {
         return quantity;
+    }
+
+    public boolean isRefresh() {
+        return refresh;
     }
 
     public boolean isCategory() {

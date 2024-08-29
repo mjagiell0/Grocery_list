@@ -58,7 +58,18 @@ public class GroceryList implements Serializable {
     public void addProduct(Product product, double quantity) {
         if (quantity <= 0)
             throw new IllegalArgumentException("Quantity must be greater than 0");
-        productList.put(product, quantity);
+
+        boolean flag = false;
+
+       for (Product p : productList.keySet()) {
+           if (p.getId() == product.getId()) {
+               productList.put(p, productList.get(p) + quantity);
+               flag = true;
+           }
+       }
+
+       if (!flag)
+           productList.put(product, quantity);
     }
 
     public void removeProduct(int id) {

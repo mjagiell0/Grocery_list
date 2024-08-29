@@ -20,6 +20,7 @@ public class ListsForm extends JFrame {
     private JButton changeNameButton;
     private JButton shareButton;
     private JLabel message;
+    private JButton refreshButton;
 
     private boolean loggedOut = false;
     private boolean add = false;
@@ -27,6 +28,7 @@ public class ListsForm extends JFrame {
     private boolean changeName = false;
     private boolean share = false;
     private boolean grocery = false;
+    private boolean refresh = false;
 
     private String tempListName;
     private int tempId;
@@ -51,6 +53,9 @@ public class ListsForm extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 onMouse(e);
             }
+        });
+        refreshButton.addActionListener(_ -> {
+
         });
     }
 
@@ -125,6 +130,10 @@ public class ListsForm extends JFrame {
         this.grocery = grocery;
     }
 
+    public void setRefresh(boolean refresh) {
+        this.refresh = refresh;
+    }
+
     public void setMessage(String message) {
         this.message.setText(message);
     }
@@ -194,6 +203,10 @@ public class ListsForm extends JFrame {
 
     public boolean isGrocery() {
         return grocery;
+    }
+
+    public boolean isRefresh() {
+        return refresh;
     }
 
     public boolean isSomeGroceryListSelected() {

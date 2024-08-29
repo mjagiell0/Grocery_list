@@ -167,10 +167,9 @@ public class Client {
                             formsHandler.getListsForm().setShare(false);
                         } else if (formsHandler.getListsForm().isGrocery()) {
                             int listId = formsHandler.getListsForm().getTempId();
-                            int userId = groceryClient.getId();
 
                             notification.setCode(GROCERY_LIST);
-                            notification.setData(new Integer[]{listId, userId});
+                            notification.setData(new Integer[]{listId});
 
                             outputStream.writeObject(notification);
                             notification = (Notification) inputStream.readObject();
@@ -191,6 +190,25 @@ public class Client {
                             }
 
                             formsHandler.getListsForm().setGrocery(false);
+                        } else if (formsHandler.getListsForm().isRefresh()) {
+                            int userId = groceryClient.getId();
+                            String login = groceryClient.getUserName();
+
+                            notification.setCode(REFRESH_LISTS);
+                            notification.setData(new Object[]{userId, login});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                groceryClient = (GroceryClient) notification.getData()[0];
+
+                                formsHandler.getListsForm().setGroceryClient(groceryClient);
+                            } else
+                                System.out.println("Error: " + notification.getData()[0]);
+
+                            formsHandler.getListsForm().setMessage("Odświeżono");
+                            formsHandler.getListsForm().setRefresh(false);
                         }
                     }
                 } else if (statusCode == 3) {
@@ -200,15 +218,17 @@ public class Client {
                     while (statusCode == 3) {
                         Thread.sleep(100);
 
-                        formsHandler.getGroceryListForm().setRemoveEnable();
+                        formsHandler.getGroceryListForm().setDeleteEnable();
 
                         if (formsHandler.getGroceryListForm().isBack()) {
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setBack(false);
+                            formsHandler.getGroceryListForm().clearTempList();
                             statusCode = 2;
                         } else if (formsHandler.getGroceryListForm().isAdd()) {
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setAdd(false);
+                            formsHandler.getGroceryListForm().clearTempList();
                             statusCode = 4;
                         } else if (formsHandler.getGroceryListForm().isCategory()) {
                             formsHandler.getGroceryListForm().setListModel();
@@ -235,6 +255,7 @@ public class Client {
                                 System.out.println(notification.getData()[0]);
 
                             formsHandler.getGroceryListForm().setDelete(false);
+                            formsHandler.getGroceryListForm().clearTempList();
                         } else if (formsHandler.getGroceryListForm().isQuantity()) {
                             int productId = formsHandler.getGroceryListForm().getTempProduct().getId();
                             int listId = formsHandler.getGroceryListForm().getGroceryListId();
@@ -254,10 +275,35 @@ public class Client {
                                 formsHandler.getGroceryListForm().setMessage("Pomyślnie zmieniono ilość produktu.");
                             } else {
                                 System.out.println(notification.getData()[0]);
-                                formsHandler.getGroceryListForm().setMessage("Coś poszło nie tak");
+                                formsHandler.getGroceryListForm().setMessage("Produkt usunięty przez innego użytkownika.");
                             }
 
                             formsHandler.getGroceryListForm().setQuantity(false);
+                            formsHandler.getGroceryListForm().clearTempList();
+                        } else if (formsHandler.getGroceryListForm().isRefresh()) {
+                            int listId = formsHandler.getListsForm().getTempId();
+
+                            notification.setCode(REFRESH_PRODUCTS);
+                            notification.setData(new Integer[]{listId});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                HashMap<Product, Double> products = (HashMap<Product, Double>) notification.getData()[0];
+
+                                GroceryList groceryList = groceryClient.getGroceryList(listId);
+                                groceryList.setProductList(products);
+
+                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
+                                formsHandler.getGroceryListForm().setMessage("Odświeżono.");
+                            } else {
+                                formsHandler.getListsForm().setMessage("Coś poszło nie tak (odświeżanie produktów).");
+                                System.out.println(notification.getData()[0]);
+                            }
+
+                            formsHandler.getGroceryListForm().setRefresh(false);
+                            formsHandler.getGroceryListForm().clearTempList();
                         }
                     }
                 } else {

@@ -119,7 +119,7 @@ public class Server {
                         changeListName(notification, outputStream);
                     else if (code == SHARE_LIST)
                         shareList(notification, outputStream);
-                    else if (code == GROCERY_LIST)
+                    else if (code == GROCERY_LIST || code == REFRESH_PRODUCTS)
                         groceryList(notification, outputStream);
                     else if (code == ADD_PRODUCT)
                         addProduct(notification, outputStream);
@@ -127,7 +127,35 @@ public class Server {
                         deleteProduct(notification, outputStream);
                     else if (code == CHANGE_QUANTITY)
                         changeQuantity(notification, outputStream);
-                }
+                    else if (code == REFRESH_LISTS) {
+                        int userId = (int) notification.getData()[0];
+                        String login = (String) notification.getData()[1];
+                        String sql = "SELECT ul.ListID, l.ListName FROM UsersLists ul JOIN Lists l ON ul.ListID = l.ListID WHERE ul.UserID = ?;";
+
+                        ArrayList<GroceryList> groceryLists = new ArrayList<>();
+
+                        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                            statement.setInt(1, userId);
+
+                            statement.execute();
+
+                            ResultSet resultSet = statement.getResultSet();
+
+                            while (resultSet.next()) {
+                                String listName = resultSet.getString("ListName");
+                                int listID = resultSet.getInt("ListID");
+
+                                GroceryList groceryList = new GroceryList(listName, listID);
+                                groceryLists.add(groceryList);
+                            }
+                        }
+
+                        GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
+                        notification.setData(new Object[]{groceryClient});
+                    }
+
+                    outputStream.writeObject(notification);
+                    }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
@@ -215,15 +243,17 @@ public class Server {
             double quantity = (double) notification.getData()[2];
             String sql = "{CALL ChangeCount(?,?,?)}";
 
+            notification.setCode(SUCCESS);
+
             try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
                 statement.setInt(1, listId);
                 statement.setInt(2, productId);
                 statement.setDouble(3, quantity);
 
                 statement.execute();
+            } catch (SQLException e) {
+                notification.setCode(ERROR);
             }
-
-            notification.setCode(SUCCESS);
 
             outputStream.writeObject(notification);
         }

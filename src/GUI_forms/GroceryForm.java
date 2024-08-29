@@ -168,6 +168,7 @@ public class GroceryForm extends JFrame {
     public void clean() {
         productsToAdd.clear();
         listModel.clear();
+        list.repaint();
     }
 
     private static class ProductFormRenderer implements ListCellRenderer<ProductForm> {
