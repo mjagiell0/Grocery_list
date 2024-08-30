@@ -80,7 +80,7 @@ public class GroceryForm extends JFrame {
                     if (quantityStr != null) {
                         try {
                             tempValue = Double.parseDouble(quantityStr);
-                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs))) {
+                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.PCS))) {
                                 JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                             } else {
                                 productsToAdd.put(tempProduct, tempValue);

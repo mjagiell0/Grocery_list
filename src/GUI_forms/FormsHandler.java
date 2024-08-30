@@ -5,12 +5,14 @@ public class FormsHandler {
     private final ListsForm listsForm;
     private final GroceryListForm groceryListForm;
     private final GroceryForm groceryForm;
+    private final CustomProductForm customProductForm;
 
     public FormsHandler() {
         loginForm = new LoginForm();
         listsForm = new ListsForm();
         groceryForm = new GroceryForm();
         groceryListForm = new GroceryListForm();
+        customProductForm = new CustomProductForm();
     }
 
     public LoginForm getLoginForm() {
@@ -27,5 +29,9 @@ public class FormsHandler {
 
     public GroceryForm getGroceryForm() {
         return groceryForm;
+    }
+
+    public CustomProductForm getCustomProductForm() {
+        return customProductForm;
     }
 }

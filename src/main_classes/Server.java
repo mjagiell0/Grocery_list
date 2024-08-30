@@ -72,9 +72,10 @@ public class Server {
                 Measure measure = null;
 
                 switch (resultSet.getString(4)) {
-                    case "pcs" -> measure = pcs;
-                    case "kg" -> measure = kg;
-                    case "l" -> measure = l;
+                    case "pcs" -> measure = PCS;
+                    case "kg" -> measure = KG;
+                    case "l" -> measure = L;
+                    case "m" -> measure = M;
                 }
 
                 double price = resultSet.getDouble(5);
@@ -192,9 +193,10 @@ public class Server {
                     Measure measure = null;
 
                     switch (resultSet.getString("Measure")) {
-                        case "pcs" -> measure = pcs;
-                        case "kg" -> measure = kg;
-                        case "l" -> measure = l;
+                        case "pcs" -> measure = PCS;
+                        case "kg" -> measure = KG;
+                        case "l" -> measure = L;
+                        case "m" -> measure = M;
                     }
 
                     Product product = new Product(productName, categoryName, measure, price, productID);
