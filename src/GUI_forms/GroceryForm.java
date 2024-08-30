@@ -59,12 +59,11 @@ public class GroceryForm extends JFrame {
 
     private void onCancel() {
         setCancel(true);
-        setList();
+        clean();
     }
 
     private void onAdd() {
         setAdd(true);
-        setList();
     }
 
     private void onMouse(MouseEvent e) {
