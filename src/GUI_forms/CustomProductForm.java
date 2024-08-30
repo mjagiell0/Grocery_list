@@ -56,10 +56,10 @@ public class CustomProductForm extends JFrame {
         String priceString = priceField.getText();
 
         switch (measureString) {
-            case "pcs" -> tempMeasure = PCS;
-            case "l" -> tempMeasure = L;
-            case "kg" -> tempMeasure = KG;
-            case "m" -> tempMeasure = M;
+            case "pcs" -> tempMeasure = pcs;
+            case "l" -> tempMeasure = l;
+            case "kg" -> tempMeasure = kg;
+            case "m" -> tempMeasure = m;
         }
 
         if (tempProductName.isEmpty() || tempCategoryName.isEmpty() || measureString.equals("-") || priceString.isEmpty() )
@@ -109,9 +109,5 @@ public class CustomProductForm extends JFrame {
 
     public double getTempPrice() {
         return tempPrice;
-    }
-
-    public static void main(String[] args) {
-        new CustomProductForm().setVisible(true);
     }
 }

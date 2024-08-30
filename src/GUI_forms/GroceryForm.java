@@ -18,16 +18,18 @@ public class GroceryForm extends JFrame {
     private JButton addButton;
     private JButton cancelButton;
     private JComboBox<String> categoryBox;
-    private DefaultComboBoxModel<String> categoryModel;
+    private JButton customAddButton;
+    private final DefaultComboBoxModel<String> categoryModel;
 
     private boolean add = false;
     private boolean cancel = false;
+    private boolean customAdd = false;
 
     private Grocery grocery;
     private String categoryFilter = "-";
     private Product tempProduct;
     private double tempValue;
-    private HashMap<Product, Double> productsToAdd;
+    private final HashMap<Product, Double> productsToAdd;
 
     public GroceryForm() {
         setTitle("Sklep");
@@ -45,6 +47,7 @@ public class GroceryForm extends JFrame {
 
         addButton.addActionListener(_ -> onAdd());
         cancelButton.addActionListener(_ -> onCancel());
+        customAddButton.addActionListener(_ -> setCustomAdd(true));
 
         list.addMouseListener(new MouseAdapter() {
             @Override
@@ -80,7 +83,7 @@ public class GroceryForm extends JFrame {
                     if (quantityStr != null) {
                         try {
                             tempValue = Double.parseDouble(quantityStr);
-                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.PCS))) {
+                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs))) {
                                 JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                             } else {
                                 productsToAdd.put(tempProduct, tempValue);
@@ -134,7 +137,12 @@ public class GroceryForm extends JFrame {
         this.cancel = cancel;
     }
 
+    public void setCustomAdd(boolean customAdd) {
+        this.customAdd = customAdd;
+    }
+
     public void setCategoryBox() {
+        categoryModel.removeAllElements();
         ArrayList<String> categories = grocery.getCategories();
 
         categoryModel.addElement("-");
@@ -145,6 +153,10 @@ public class GroceryForm extends JFrame {
 
     public HashMap<Product, Double> getProductsToAdd() {
         return productsToAdd;
+    }
+
+    public Grocery getGrocery() {
+        return grocery;
     }
 
     public boolean isCategoryChanged() {
@@ -163,6 +175,10 @@ public class GroceryForm extends JFrame {
 
     public boolean isCancel() {
         return cancel;
+    }
+
+    public boolean isCustomAdd() {
+        return customAdd;
     }
 
     public void clean() {

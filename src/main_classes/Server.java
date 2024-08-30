@@ -72,10 +72,10 @@ public class Server {
                 Measure measure = null;
 
                 switch (resultSet.getString(4)) {
-                    case "pcs" -> measure = PCS;
-                    case "kg" -> measure = KG;
-                    case "l" -> measure = L;
-                    case "m" -> measure = M;
+                    case "pcs" -> measure = pcs;
+                    case "kg" -> measure = kg;
+                    case "l" -> measure = l;
+                    case "m" -> measure = m;
                 }
 
                 double price = resultSet.getDouble(5);
@@ -130,11 +130,47 @@ public class Server {
                         changeQuantity(notification, outputStream);
                     else if (code == REFRESH_LISTS)
                         refreshLists(notification, outputStream);
+                    else if (code == CUSTOM_PRODUCT) {
+                        customProduct(notification, outputStream);
+                    }
 
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void customProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            String productName = (String) notification.getData()[0];
+            String category = (String) notification.getData()[1];
+            Measure measure = (Measure) notification.getData()[2];
+            double price = (double) notification.getData()[3];
+            String sql = "CALL AddProduct(?,?,?,?,?,?)";
+
+            int resultCode, productId;
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.setString(1, productName);
+                statement.setString(2, category);
+                statement.setString(3, measure.toString());
+                statement.setDouble(4, price);
+                statement.registerOutParameter(5, Types.INTEGER);
+                statement.registerOutParameter(6, Types.INTEGER);
+
+                statement.execute();
+
+                productId = statement.getInt(5);
+                resultCode = statement.getInt(6);
+
+                if (resultCode == -1)
+                    notification.setCode(ERROR);
+                else {
+                    notification.setCode(SUCCESS);
+                    notification.setData(new Integer[]{productId});
+                }
+            }
+
+            outputStream.writeObject(notification);
         }
 
         private void refreshLists(Notification notification, ObjectOutputStream outputStream) throws IOException {
@@ -193,10 +229,10 @@ public class Server {
                     Measure measure = null;
 
                     switch (resultSet.getString("Measure")) {
-                        case "pcs" -> measure = PCS;
-                        case "kg" -> measure = KG;
-                        case "l" -> measure = L;
-                        case "m" -> measure = M;
+                        case "pcs" -> measure = pcs;
+                        case "kg" -> measure = kg;
+                        case "l" -> measure = l;
+                        case "m" -> measure = m;
                     }
 
                     Product product = new Product(productName, categoryName, measure, price, productID);

@@ -5,6 +5,7 @@ import grocery_classes.Grocery;
 import grocery_classes.GroceryClient;
 import grocery_classes.GroceryList;
 import grocery_classes.Product;
+import measure_enums.Measure;
 import notification_classes.Notification;
 
 import static notification_classes.NotificationCode.*;
@@ -316,7 +317,7 @@ public class Client {
                             formsHandler.getGroceryListForm().clearTempList();
                         }
                     }
-                } else {
+                } else if (statusCode == 4) {
                     formsHandler.getGroceryForm().setVisible(true);
 
                     while (statusCode == 4) {
@@ -355,6 +356,46 @@ public class Client {
                             formsHandler.getGroceryForm().setCancel(true);
                         } else if (formsHandler.getGroceryForm().isCategoryChanged()) {
                             formsHandler.getGroceryForm().setList();
+                        } else if (formsHandler.getGroceryForm().isCustomAdd()) {
+                            formsHandler.getGroceryForm().clean();
+                            formsHandler.getGroceryForm().setVisible(false);
+                            formsHandler.getGroceryForm().setCustomAdd(false);
+                            statusCode = 5;
+                        }
+                    }
+                } else {
+                    formsHandler.getCustomProductForm().setVisible(true);
+
+                    while (statusCode == 5) {
+                        Thread.sleep(100);
+
+                        if (formsHandler.getCustomProductForm().isCancel()) {
+                            formsHandler.getCustomProductForm().setVisible(false);
+                            formsHandler.getCustomProductForm().setCancel(false);
+                            statusCode = 4;
+                        } else if (formsHandler.getCustomProductForm().isAdd()) {
+                            String productName = formsHandler.getCustomProductForm().getTempProductName();
+                            String categoryName = formsHandler.getCustomProductForm().getTempCategoryName();
+                            Measure measure = formsHandler.getCustomProductForm().getTempMeasure();
+                            double price = formsHandler.getCustomProductForm().getTempPrice();
+
+                            notification.setCode(CUSTOM_PRODUCT);
+                            notification.setData(new Object[]{productName, categoryName, measure, price});
+
+                            outputStream.writeObject(notification);
+                            notification = (Notification) inputStream.readObject();
+
+                            if (notification.getCode() == SUCCESS) {
+                                int productId = (int) notification.getData()[0];
+
+                                Product product = new Product(productName, categoryName, measure, price, productId);
+                                grocery.addProduct(product);
+                                formsHandler.getGroceryForm().setGrocery(grocery);
+                            } else if (notification.getCode() == ERROR)
+                                System.out.println(notification.getData()[0]);
+
+                            formsHandler.getCustomProductForm().setAdd(false);
+                            formsHandler.getCustomProductForm().setCancel(true);
                         }
                     }
                 }
