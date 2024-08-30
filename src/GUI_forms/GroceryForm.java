@@ -82,9 +82,9 @@ public class GroceryForm extends JFrame {
                     if (quantityStr != null) {
                         try {
                             tempValue = Double.parseDouble(quantityStr);
-                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs))) {
+                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs)))
                                 JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
-                            } else {
+                            else {
                                 productsToAdd.put(tempProduct, tempValue);
                                 selectedProductForm.setQuantity(tempValue);
                                 selectedProductForm.setCheckbox(true);
@@ -182,11 +182,13 @@ public class GroceryForm extends JFrame {
 
     public void clean() {
         productsToAdd.clear();
-        listModel.clear();
-        categoryModel.removeAllElements();
 
-        setList();
-        setCategoryBox();
+        for (int i = 0; i < listModel.getSize(); i++) {
+            ProductForm productForm = listModel.getElementAt(i);
+            productForm.setCheckbox(false);
+            productForm.setQuantity(0);
+        }
+
         categoryFilter = "-";
         categoryBox.setSelectedIndex(0);
 

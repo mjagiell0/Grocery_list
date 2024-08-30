@@ -53,7 +53,10 @@ public class Client {
                             else
                                 notification.setCode(SIGN_UP);
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -89,7 +92,10 @@ public class Client {
                             notification.setCode(ADD_LIST);
                             notification.setData(new Object[]{newListName, groceryClient.getId()});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -112,7 +118,10 @@ public class Client {
                             notification.setCode(DELETE_LIST);
                             notification.setData(new Object[]{groceryClient.getId(), groceryIDsList});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -140,7 +149,10 @@ public class Client {
                             notification.setCode(CHANGE_LIST_NAME);
                             notification.setData(new Object[]{groceryClient.getId(), id, newListName});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -158,7 +170,10 @@ public class Client {
                             notification.setCode(SHARE_LIST);
                             notification.setData(new Object[]{userName, groceryListsIDs});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS)
@@ -174,7 +189,10 @@ public class Client {
                             notification.setCode(GROCERY_LIST);
                             notification.setData(new Integer[]{listId});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -204,7 +222,10 @@ public class Client {
                             notification.setCode(REFRESH_LISTS);
                             notification.setData(new Object[]{userId, login});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -237,8 +258,6 @@ public class Client {
 
                             statusCode = 2;
                         } else if (formsHandler.getGroceryListForm().isAdd()) {
-                            formsHandler.getGroceryForm().clean();
-                            formsHandler.getGroceryListForm().clearTempList();
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setAdd(false);
 
@@ -252,7 +271,10 @@ public class Client {
                             notification.setCode(DELETE_PRODUCT);
                             notification.setData(new Object[]{listId, productsIDs});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -279,7 +301,10 @@ public class Client {
                             notification.setCode(CHANGE_QUANTITY);
                             notification.setData(new Object[]{listId, productId, quantity});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -301,7 +326,10 @@ public class Client {
                             notification.setCode(REFRESH_PRODUCTS);
                             notification.setData(new Integer[]{listId});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
@@ -333,28 +361,33 @@ public class Client {
                             formsHandler.getGroceryForm().setCancel(false);
                             statusCode = 3;
                         } else if (formsHandler.getGroceryForm().isAdd()) {
-                            HashMap<Product, Double> productsToAdd = formsHandler.getGroceryForm().getProductsToAdd();
-                            int listId = formsHandler.getGroceryListForm().getGroceryListId();
+                            if (!formsHandler.getGroceryForm().getProductsToAdd().isEmpty()) {
+                                HashMap<Product, Double> productsToAdd = formsHandler.getGroceryForm().getProductsToAdd();
+                                int listId = formsHandler.getGroceryListForm().getGroceryListId();
 
-                            notification.setCode(ADD_PRODUCT);
-                            notification.setData(new Object[]{listId, productsToAdd});
+                                notification.setCode(ADD_PRODUCT);
+                                notification.setData(new Object[]{listId, productsToAdd});
 
-                            outputStream.writeObject(notification);
-                            notification = (Notification) inputStream.readObject();
+                                outputStream.reset();
+                                outputStream.writeObject(notification);
+                                outputStream.flush();
 
-                            if (notification.getCode() == SUCCESS) {
-                                GroceryList groceryList = groceryClient.getGroceryList(listId);
+                                notification = (Notification) inputStream.readObject();
 
-                                for (Product product : productsToAdd.keySet()) {
-                                    double quantity = productsToAdd.get(product);
-                                    groceryList.addProduct(product, quantity);
-                                }
+                                if (notification.getCode() == SUCCESS) {
+                                    GroceryList groceryList = groceryClient.getGroceryList(listId);
 
-                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
+                                    for (Product product : productsToAdd.keySet()) {
+                                        double quantity = productsToAdd.get(product);
+                                        groceryList.addProduct(product, quantity);
+                                    }
 
-                                formsHandler.getGroceryListForm().setMessage("Pomyślnie dodano " + productsToAdd.size() + " produktów.");
-                            } else
-                                System.out.println(notification.getData()[0]);
+                                    formsHandler.getGroceryListForm().setGroceryList(groceryList);
+
+                                    formsHandler.getGroceryListForm().setMessage("Pomyślnie dodano " + productsToAdd.size() + " produktów.");
+                                } else
+                                    System.out.println(notification.getData()[0]);
+                            }
 
                             formsHandler.getGroceryForm().setAdd(false);
                             formsHandler.getGroceryForm().setCancel(true);
@@ -386,7 +419,10 @@ public class Client {
                             notification.setCode(CUSTOM_PRODUCT);
                             notification.setData(new Object[]{productName, categoryName, measure, price});
 
+                            outputStream.reset();
                             outputStream.writeObject(notification);
+                            outputStream.flush();
+
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {

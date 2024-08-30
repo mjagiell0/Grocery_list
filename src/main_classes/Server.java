@@ -101,7 +101,10 @@ public class Server {
             try {
                 ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream inputStream = new ObjectInputStream(clientSocket.getInputStream());
+
+                outputStream.reset();
                 outputStream.writeObject(grocery);
+                outputStream.flush();
 
                 while (true) {
                     Thread.sleep(100);
@@ -170,7 +173,9 @@ public class Server {
                 }
             }
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private void refreshLists(Notification notification, ObjectOutputStream outputStream) throws IOException {
@@ -204,8 +209,9 @@ public class Server {
             GroceryClient groceryClient = new GroceryClient(userId, login, groceryLists);
             notification.setData(new Object[]{groceryClient});
 
-
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush(); outputStream.writeObject(notification);
         }
 
         private static void groceryList(Notification notification, ObjectOutputStream outputStream) throws IOException {
@@ -248,7 +254,10 @@ public class Server {
                 notification.setCode(SUCCESS);
                 notification.setData(new Object[]{products});
             }
+
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void signUp(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -282,7 +291,9 @@ public class Server {
                 notification.setData(new String[]{"User already exists"});
             }
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void changeQuantity(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -311,7 +322,9 @@ public class Server {
             if (resultCode == 0)
                 notification.setCode(ERROR);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void deleteProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -341,7 +354,9 @@ public class Server {
             if (notification.getCode() != ERROR)
                 notification.setCode(SUCCESS);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void addProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -374,7 +389,9 @@ public class Server {
             if (!flag)
                 notification.setCode(SUCCESS);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void shareList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -410,7 +427,9 @@ public class Server {
             if (!flag)
                 notification.setCode(SUCCESS);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void changeListName(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -436,7 +455,9 @@ public class Server {
             else
                 notification.setCode(ERROR);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void deleteList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -471,7 +492,9 @@ public class Server {
             } else
                 notification.setCode(SUCCESS);
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void addList(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -504,7 +527,9 @@ public class Server {
                 notification.setData(new Integer[]{listId});
             }
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void signIn(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
@@ -559,7 +584,9 @@ public class Server {
                 notification.setData(new Object[]{groceryClient});
             }
 
+            outputStream.reset();
             outputStream.writeObject(notification);
+            outputStream.flush();
         }
     }
 }
