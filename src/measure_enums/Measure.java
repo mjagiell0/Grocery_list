@@ -1,5 +1,5 @@
 package measure_enums;
 
 public enum Measure {
-    pcs , kg, l, m
+    pcs, kg, l, m
 }

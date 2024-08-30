@@ -163,9 +163,12 @@ public class GroceryListForm extends JFrame {
         return groceryList.getId();
     }
 
+    public String getGroceryListName() {
+        return groceryList.getName();
+    }
+
     public void setGroceryList(GroceryList groceryList) {
         this.groceryList = groceryList;
-        setTitle(groceryList.getName());
         setCategoryBox();
         setListModel();
     }

@@ -162,7 +162,7 @@ public class Server {
                 productId = statement.getInt(5);
                 resultCode = statement.getInt(6);
 
-                if (resultCode == -1)
+                if (resultCode == -1 || resultCode == -2)
                     notification.setCode(ERROR);
                 else {
                     notification.setCode(SUCCESS);

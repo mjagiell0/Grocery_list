@@ -47,6 +47,10 @@ public class CustomProductForm extends JFrame {
     private void onCancel() {
         setCancel(true);
         setMessage("");
+        productNameField.setText("");
+        categoryNameField.setText("");
+        priceField.setText("");
+        measureBox.setSelectedIndex(0);
     }
 
     private void onAdd() {

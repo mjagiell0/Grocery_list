@@ -222,6 +222,7 @@ public class Client {
                     }
                 } else if (statusCode == 3) {
                     formsHandler.getGroceryListForm().setMessage("");
+                    formsHandler.getGroceryListForm().setTitle(formsHandler.getGroceryListForm().getGroceryListName() + " - " + groceryClient.getUserName());
                     formsHandler.getGroceryListForm().setVisible(true);
 
                     while (statusCode == 3) {
@@ -235,6 +236,7 @@ public class Client {
                             formsHandler.getGroceryListForm().clearTempList();
                             statusCode = 2;
                         } else if (formsHandler.getGroceryListForm().isAdd()) {
+                            formsHandler.getGroceryListForm().clearTempList();
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setAdd(false);
                             formsHandler.getGroceryListForm().clearTempList();
@@ -257,7 +259,7 @@ public class Client {
                                 for (Integer id : productsIDs)
                                     groceryList.removeProduct(id);
 
-                                formsHandler.getGroceryListForm().updateListView(groceryList);
+                                formsHandler.getGroceryListForm().setGroceryList(groceryList);
 
                                 formsHandler.getGroceryListForm().setMessage("Usunięto " + productsIDs.size() + " produktów.");
                             } else {
@@ -267,7 +269,7 @@ public class Client {
 
                             formsHandler.getGroceryListForm().setDelete(false);
                             formsHandler.getGroceryListForm().clearTempList();
-                        } else if (formsHandler.getGroceryListForm().isQuantity()) { // TODO: Sprawdź jak zachowa się program przy zmianie ilości produktu z dwóch kont
+                        } else if (formsHandler.getGroceryListForm().isQuantity()) {
                             int productId = formsHandler.getGroceryListForm().getTempProduct().getId();
                             int listId = formsHandler.getGroceryListForm().getGroceryListId();
                             double quantity = formsHandler.getGroceryListForm().getTempValue();
