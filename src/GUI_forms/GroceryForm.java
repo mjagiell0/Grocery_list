@@ -184,6 +184,13 @@ public class GroceryForm extends JFrame {
     public void clean() {
         productsToAdd.clear();
         listModel.clear();
+        categoryModel.removeAllElements();
+
+        setList();
+        setCategoryBox();
+        categoryFilter = "-";
+        categoryBox.setSelectedIndex(0);
+
         list.repaint();
     }
 

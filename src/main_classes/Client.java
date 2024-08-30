@@ -234,12 +234,14 @@ public class Client {
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setBack(false);
                             formsHandler.getGroceryListForm().clearTempList();
+
                             statusCode = 2;
                         } else if (formsHandler.getGroceryListForm().isAdd()) {
+                            formsHandler.getGroceryForm().clean();
                             formsHandler.getGroceryListForm().clearTempList();
                             formsHandler.getGroceryListForm().setVisible(false);
                             formsHandler.getGroceryListForm().setAdd(false);
-                            formsHandler.getGroceryListForm().clearTempList();
+
                             statusCode = 4;
                         } else if (formsHandler.getGroceryListForm().isCategory()) {
                             formsHandler.getGroceryListForm().setListModel();
