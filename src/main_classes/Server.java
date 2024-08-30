@@ -26,7 +26,6 @@ import static measure_enums.Measure.*;
 
 public class Server {
     private final static DatabaseHandler databaseHandler;
-    private static Grocery grocery;
 
     static {
         try {
@@ -37,8 +36,6 @@ public class Server {
     }
 
     public static void main(String[] args) throws SQLException {
-        groceryInit();
-
         try (ServerSocket serverSocket = new ServerSocket(2222)) {
             System.out.println("Server listening on port 2222...");
 
@@ -56,38 +53,7 @@ public class Server {
         }
     }
 
-    private static void groceryInit() throws SQLException {
-        ArrayList<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM Products";
 
-        try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
-            statement.execute();
-
-            ResultSet resultSet = statement.getResultSet();
-
-            while (resultSet.next()) {
-                int productId = resultSet.getInt(1);
-                String productName = resultSet.getString(2);
-                String category = resultSet.getString(3);
-                Measure measure = null;
-
-                switch (resultSet.getString(4)) {
-                    case "pcs" -> measure = pcs;
-                    case "kg" -> measure = kg;
-                    case "l" -> measure = l;
-                    case "m" -> measure = m;
-                }
-
-                double price = resultSet.getDouble(5);
-
-                Product product = new Product(productName, category, measure, price, productId);
-
-                products.add(product);
-            }
-        }
-
-        grocery = new Grocery(products);
-    }
 
     static class ClientHandler implements Runnable {
         private final Socket clientSocket;
@@ -101,10 +67,6 @@ public class Server {
             try {
                 ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream inputStream = new ObjectInputStream(clientSocket.getInputStream());
-
-                outputStream.reset();
-                outputStream.writeObject(grocery);
-                outputStream.flush();
 
                 while (true) {
                     Thread.sleep(100);
@@ -133,14 +95,59 @@ public class Server {
                         changeQuantity(notification, outputStream);
                     else if (code == REFRESH_LISTS)
                         refreshLists(notification, outputStream);
-                    else if (code == CUSTOM_PRODUCT) {
+                    else if (code == CUSTOM_PRODUCT)
                         customProduct(notification, outputStream);
-                    }
+                    else if (code == GROCERY_INIT)
+                        groceryInit(notification, outputStream);
+
 
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 System.out.println("Client exception: " + e.getMessage());
             }
+        }
+
+        private static void groceryInit(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {
+            ArrayList<Product> products = new ArrayList<>();
+            String sql = "SELECT * FROM Products";
+
+            try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
+                statement.execute();
+
+                ResultSet resultSet = statement.getResultSet();
+
+                while (resultSet.next()) {
+                    int productId = resultSet.getInt(1);
+                    String productName = resultSet.getString(2);
+                    String category = resultSet.getString(3);
+                    Measure measure = null;
+
+                    switch (resultSet.getString(4)) {
+                        case "pcs" -> measure = pcs;
+                        case "kg" -> measure = kg;
+                        case "l" -> measure = l;
+                        case "m" -> measure = m;
+                    }
+
+                    double price = resultSet.getDouble(5);
+
+                    Product product = new Product(productName, category, measure, price, productId);
+
+                    products.add(product);
+                }
+            } catch (SQLException e) {
+                notification.setCode(ERROR);
+            }
+
+            if (notification.getCode() != ERROR) {
+                notification.setCode(SUCCESS);
+                Grocery grocery = new Grocery(products);
+                notification.setData(new Grocery[]{grocery});
+            }
+
+            outputStream.reset();
+            outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void customProduct(Notification notification, ObjectOutputStream outputStream) throws SQLException, IOException {

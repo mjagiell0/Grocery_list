@@ -29,6 +29,7 @@ public class GroceryListForm extends JFrame {
     private boolean delete = false;
     private boolean quantity = false;
     private boolean refresh = false;
+    private boolean selectAll = false;
 
     private GroceryList groceryList;
 
@@ -76,13 +77,14 @@ public class GroceryListForm extends JFrame {
                 ProductForm productForm = listModel.getElementAt(i);
                 if (categoryFilter.equals("-") || productForm.getProduct().getCategory().equals(categoryFilter)) {
                     productForm.setCheckbox(!productForm.isChecked());
-                    if (productForm.isChecked())
+                    if (!selectAll)
                         tempList.add(productForm.getProduct());
                     else
                         tempList.remove(productForm.getProduct());
                 }
             }
             list.repaint();
+            selectAll = !selectAll;
         }
     }
 
@@ -200,19 +202,25 @@ public class GroceryListForm extends JFrame {
         Set<Product> products = productMap.keySet();
 
         if (!products.isEmpty()) {
-            for (Product product : products) {
+            List<Product> sortedProducts = new ArrayList<>(products);
+
+            sortedProducts.sort(Comparator.comparing(Product::getName));
+
+            for (Product product : sortedProducts) {
                 if (product.getCategory().equals(categoryFilter) || categoryFilter.equals("-")) {
                     double quantity = productMap.get(product);
                     listModel.addElement(new ProductForm(product, quantity));
                 }
             }
         }
+
         list.setModel(listModel);
         this.listModel = listModel;
         list.setEnabled(true);
 
         list.repaint();
     }
+
 
     public void setMessage(String message) {
         this.message.setText(message);

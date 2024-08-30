@@ -28,9 +28,7 @@ public class Client {
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             Notification notification = new Notification();
-
-            Grocery grocery = (Grocery) inputStream.readObject();
-            formsHandler.getGroceryForm().setGrocery(grocery);
+            Grocery grocery = null;
 
             int statusCode = 1;
 
@@ -350,6 +348,21 @@ public class Client {
                         }
                     }
                 } else if (statusCode == 4) {
+                    notification.setCode(GROCERY_INIT);
+                    outputStream.reset();
+                    outputStream.writeObject(notification);
+                    outputStream.flush();
+
+                    notification = (Notification) inputStream.readObject();
+
+                    if (notification.getCode() == SUCCESS) {
+                        grocery = (Grocery) notification.getData()[0];
+                        formsHandler.getGroceryForm().setGrocery(grocery);
+                    } else {
+                        formsHandler.getGroceryListForm().setMessage("Błąd danych sklepu");
+                        statusCode = 3;
+                    }
+
                     formsHandler.getGroceryForm().setVisible(true);
 
                     while (statusCode == 4) {
