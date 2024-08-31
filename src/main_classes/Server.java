@@ -218,7 +218,7 @@ public class Server {
 
             outputStream.reset();
             outputStream.writeObject(notification);
-            outputStream.flush(); outputStream.writeObject(notification);
+            outputStream.flush();
         }
 
         private static void groceryList(Notification notification, ObjectOutputStream outputStream) throws IOException {
