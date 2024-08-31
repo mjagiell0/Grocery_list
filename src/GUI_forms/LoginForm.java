@@ -1,6 +1,8 @@
 package GUI_forms;
 
 import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class LoginForm extends JFrame {
     private JTextField loginField;
@@ -22,6 +24,17 @@ public class LoginForm extends JFrame {
 
         signInButton.addActionListener(_ -> onSignIn());
         signUpButton.addActionListener(_ -> onSignUp());
+
+        KeyAdapter enterKeyListener = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                    signInButton.doClick();
+            }
+        };
+
+        loginField.addKeyListener(enterKeyListener);
+        passwordField.addKeyListener(enterKeyListener);
     }
 
     private void onSignUp() {

@@ -142,10 +142,10 @@ public class Client {
                             formsHandler.getListsForm().setDelete(false);
                         } else if (formsHandler.getListsForm().isChangeName()) {
                             String newListName = formsHandler.getListsForm().getTempListName();
-                            int id = formsHandler.getListsForm().getTempId();
+                            int listId = formsHandler.getListsForm().getTempId();
 
                             notification.setCode(CHANGE_LIST_NAME);
-                            notification.setData(new Object[]{groceryClient.getId(), id, newListName});
+                            notification.setData(new Object[]{groceryClient.getId(), listId, newListName});
 
                             outputStream.reset();
                             outputStream.writeObject(notification);
@@ -154,7 +154,7 @@ public class Client {
                             notification = (Notification) inputStream.readObject();
 
                             if (notification.getCode() == SUCCESS) {
-                                groceryClient.getGroceryList(id).setName(newListName);
+                                groceryClient.getGroceryList(listId).setName(newListName);
                                 formsHandler.getListsForm().setMessage("Pomyślnie zmieniono nazwę.");
                                 formsHandler.getListsForm().setGroceryClient(groceryClient);
                             } else

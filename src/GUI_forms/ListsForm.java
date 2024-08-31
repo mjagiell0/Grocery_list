@@ -84,6 +84,8 @@ public class ListsForm extends JFrame {
         if (option == JOptionPane.OK_OPTION) {
             tempListName = listName.getText();
             setChangeName(true);
+            String selectedListName = list.getSelectedValuesList().getFirst();
+            tempId = groceryClient.getGroceryList(selectedListName).getId();
         }
     }
 
