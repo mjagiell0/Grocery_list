@@ -76,11 +76,15 @@ public class GroceryListForm extends JFrame {
             for (int i = 0; i < listModel.getSize(); i++) {
                 ProductForm productForm = listModel.getElementAt(i);
                 if (categoryFilter.equals("-") || productForm.getProduct().getCategory().equals(categoryFilter)) {
-                    productForm.setCheckbox(!productForm.isChecked());
-                    if (!selectAll)
-                        tempList.add(productForm.getProduct());
-                    else
+                    if (!selectAll) {
+                        if (!tempList.contains(productForm.getProduct()))
+                            tempList.add(productForm.getProduct());
+                        productForm.setCheckbox(true);
+                    }
+                    else {
                         tempList.remove(productForm.getProduct());
+                        productForm.setCheckbox(false);
+                    }
                 }
             }
             list.repaint();
