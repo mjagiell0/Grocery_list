@@ -75,7 +75,7 @@ public class GroceryListForm extends JFrame {
         if (!listModel.isEmpty()) {
             for (int i = 0; i < listModel.getSize(); i++) {
                 ProductForm productForm = listModel.getElementAt(i);
-                if (categoryFilter.equals("-") || productForm.getProduct().getCategory().equals(categoryFilter)) {
+                if (categoryFilter.equals("-") || productForm.getProduct().category().equals(categoryFilter)) {
                     if (!selectAll) {
                         if (!tempList.contains(productForm.getProduct()))
                             tempList.add(productForm.getProduct());
@@ -111,7 +111,7 @@ public class GroceryListForm extends JFrame {
                 if (option == JOptionPane.OK_OPTION) {
                     try {
                         tempValue = Double.parseDouble(quantityField.getText());
-                        if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs)))
+                        if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.measure().equals(Measure.pcs)))
                             JOptionPane.showMessageDialog(null, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                         else {
                             selectedProductForm.setQuantity(tempValue);
@@ -208,10 +208,10 @@ public class GroceryListForm extends JFrame {
         if (!products.isEmpty()) {
             List<Product> sortedProducts = new ArrayList<>(products);
 
-            sortedProducts.sort(Comparator.comparing(Product::getName));
+            sortedProducts.sort(Comparator.comparing(Product::name));
 
             for (Product product : sortedProducts) {
-                if (product.getCategory().equals(categoryFilter) || categoryFilter.equals("-")) {
+                if (product.category().equals(categoryFilter) || categoryFilter.equals("-")) {
                     double quantity = productMap.get(product);
                     listModel.addElement(new ProductForm(product, quantity));
                 }
@@ -230,12 +230,6 @@ public class GroceryListForm extends JFrame {
         this.message.setText(message);
     }
 
-    public void updateListView(GroceryList groceryList) {
-        setGroceryList(groceryList);
-        setCategoryBox();
-        setListModel();
-    }
-
     public void clearTempList() {
         tempList.clear();
     }
@@ -244,7 +238,7 @@ public class GroceryListForm extends JFrame {
         List<Integer> productsIDs = new ArrayList<>();
 
         for (Product product : tempList)
-            productsIDs.add(product.getId());
+            productsIDs.add(product.id());
 
         return productsIDs;
     }

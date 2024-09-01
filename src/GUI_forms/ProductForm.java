@@ -22,9 +22,9 @@ public class ProductForm extends JFrame{
 
         this.product = product;
 
-        productLabel.setText(product.getName());
-        quantityLabel.setText(new DecimalFormat("#.##").format(quantity) + " " + product.getMeasure());
-        priceLabel.setText(new DecimalFormat("#.##").format(product.getPricePerMeasure() * quantity) + " zł");
+        productLabel.setText(product.name());
+        quantityLabel.setText(new DecimalFormat("#.##").format(quantity) + " " + product.measure());
+        priceLabel.setText(new DecimalFormat("#.##").format(product.pricePerMeasure() * quantity) + " zł");
     }
 
     public void setCheckbox(boolean state) {
@@ -32,8 +32,8 @@ public class ProductForm extends JFrame{
     }
 
     public void setQuantity(double quantity) {
-        quantityLabel.setText(new DecimalFormat("#.##").format(quantity) + " " + product.getMeasure());
-        priceLabel.setText(new DecimalFormat("#.##").format(product.getPricePerMeasure() * quantity) + " zł");
+        quantityLabel.setText(new DecimalFormat("#.##").format(quantity) + " " + product.measure());
+        priceLabel.setText(new DecimalFormat("#.##").format(product.pricePerMeasure() * quantity) + " zł");
     }
 
     public boolean isChecked() {

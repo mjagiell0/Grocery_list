@@ -27,8 +27,6 @@ public class GroceryForm extends JFrame {
 
     private Grocery grocery;
     private String categoryFilter = "-";
-    private Product tempProduct;
-    private double tempValue;
     private final HashMap<Product, Double> productsToAdd;
 
     public GroceryForm() {
@@ -71,7 +69,7 @@ public class GroceryForm extends JFrame {
             int index = list.getSelectedIndex();
             if (index >= 0) {
                 ProductForm selectedProductForm = listModel.get(index);
-                tempProduct = selectedProductForm.getProduct();
+                Product tempProduct = selectedProductForm.getProduct();
 
                 if (productsToAdd.containsKey(tempProduct)) {
                     productsToAdd.remove(tempProduct);
@@ -81,8 +79,8 @@ public class GroceryForm extends JFrame {
                     String quantityStr = JOptionPane.showInputDialog(this, "Podaj ilość produktu", "Ilość", JOptionPane.PLAIN_MESSAGE);
                     if (quantityStr != null) {
                         try {
-                            tempValue = Double.parseDouble(quantityStr);
-                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.getMeasure().equals(Measure.pcs)))
+                            double tempValue = Double.parseDouble(quantityStr);
+                            if (tempValue <= 0 || (tempValue % 1 != 0 && tempProduct.measure().equals(Measure.pcs)))
                                 JOptionPane.showMessageDialog(this, "Wprowadź poprawną liczbę", "Błąd", JOptionPane.ERROR_MESSAGE);
                             else {
                                 productsToAdd.put(tempProduct, tempValue);
@@ -154,9 +152,6 @@ public class GroceryForm extends JFrame {
         return productsToAdd;
     }
 
-    public Grocery getGrocery() {
-        return grocery;
-    }
 
     public boolean isCategoryChanged() {
         String selectedCategory = (String) categoryBox.getSelectedItem();

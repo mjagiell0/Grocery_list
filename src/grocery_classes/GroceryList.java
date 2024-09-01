@@ -39,8 +39,8 @@ public class GroceryList implements Serializable {
         ArrayList<String> categories = new ArrayList<>();
 
         for (Product product : productList.keySet())
-            if (!categories.contains(product.getCategory()))
-                categories.add(product.getCategory());
+            if (!categories.contains(product.category()))
+                categories.add(product.category());
 
         return categories;
     }
@@ -62,7 +62,7 @@ public class GroceryList implements Serializable {
         boolean flag = false;
 
        for (Product p : productList.keySet()) {
-           if (p.getId() == product.getId()) {
+           if (p.id() == product.id()) {
                productList.put(p, productList.get(p) + quantity);
                flag = true;
            }
@@ -74,7 +74,7 @@ public class GroceryList implements Serializable {
 
     public void removeProduct(int id) {
         for (Product product : productList.keySet())
-            if (product.getId() == id) {
+            if (product.id() == id) {
                 productList.remove(product);
                 break;
             }
@@ -82,7 +82,7 @@ public class GroceryList implements Serializable {
 
     public void setCustomQuantity(int productId, double quantity) {
         for (Product product : productList.keySet()){
-            if (product.getId() == productId) {
+            if (product.id() == productId) {
                 productList.put(product, quantity);
                 break;
             }

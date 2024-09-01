@@ -292,7 +292,7 @@ public class Client {
                             formsHandler.getGroceryListForm().setDelete(false);
                             formsHandler.getGroceryListForm().clearTempList();
                         } else if (formsHandler.getGroceryListForm().isQuantity()) {
-                            int productId = formsHandler.getGroceryListForm().getTempProduct().getId();
+                            int productId = formsHandler.getGroceryListForm().getTempProduct().id();
                             int listId = formsHandler.getGroceryListForm().getGroceryListId();
                             double quantity = formsHandler.getGroceryListForm().getTempValue();
 

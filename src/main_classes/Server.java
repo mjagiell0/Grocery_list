@@ -377,7 +377,7 @@ public class Server {
             for (Product product : productsToAdd.keySet()) {
                 try (CallableStatement statement = databaseHandler.getConnection().prepareCall(sql)) {
                     statement.setInt(1, listId);
-                    statement.setInt(2, product.getId());
+                    statement.setInt(2, product.id());
                     statement.setDouble(3, productsToAdd.get(product));
                     statement.registerOutParameter(4, Types.INTEGER);
 

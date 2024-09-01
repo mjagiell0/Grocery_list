@@ -58,24 +58,8 @@ public class GroceryClient implements Serializable {
         return id;
     }
 
-    public void setGroceryLists(ArrayList<GroceryList> groceryLists) {
-        this.groceryLists = groceryLists;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void removeGroceryList(int id) {
         groceryLists.removeIf(groceryList -> groceryList.getId() == id);
-    }
-
-    public void removeAll() {
-        groceryLists.clear();
     }
 
     public void addGroceryList(GroceryList groceryList) {
