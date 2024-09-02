@@ -1,0 +1,304 @@
+CREATE DATABASE Shop;
+USE Shop;
+
+DROP TABLE IF EXISTS UsersLists;
+DROP TABLE IF EXISTS ListsProducts;
+DROP TABLE IF EXISTS Lists;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Products;
+
+CREATE TABLE Products
+(
+    ProductID    INT AUTO_INCREMENT PRIMARY KEY,
+    ProductName  VARCHAR(30)               NOT NULL,
+    CategoryName VARCHAR(30)               NOT NULL,
+    Measure      enum ('m','l','kg','pcs') NOT NULL,
+    Price        decimal(10, 2) CHECK ( Price > 0 )
+);
+
+CREATE TABLE Users
+(
+    UserID   INT AUTO_INCREMENT PRIMARY KEY,
+    Login    VARCHAR(30) NOT NULL,
+    Password VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Lists
+(
+    ListID   INT AUTO_INCREMENT PRIMARY KEY,
+    ListName VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE ListsProducts
+(
+    ListID    INT,
+    ProductID INT,
+    Quantity  DECIMAL(10, 2),
+    PRIMARY KEY (ProductID, ListID),
+    FOREIGN KEY (ProductID) REFERENCES Products (ProductID),
+    FOREIGN KEY (ListID) REFERENCES Lists (ListID)
+);
+
+CREATE TABLE UsersLists
+(
+    UserID INT,
+    ListID INT,
+    PRIMARY KEY (UserID, ListID),
+    FOREIGN KEY (UserID) REFERENCES Users (UserID),
+    FOREIGN KEY (ListID) REFERENCES Lists (ListID)
+);
+
+INSERT INTO Products (ProductName, CategoryName, Measure, Price)
+VALUES ('Chleb', 'Pieczywo', 'pcs', 3.50),
+       ('Bułka', 'Pieczywo', 'pcs', 1.00),
+       ('Bagietka', 'Pieczywo', 'pcs', 2.50),
+       ('Rogal', 'Pieczywo', 'pcs', 1.50),
+       ('Ciabatta', 'Pieczywo', 'pcs', 4.00),
+
+       ('Jabłko', 'Owoce', 'kg', 3.00),
+       ('Banan', 'Owoce', 'kg', 4.50),
+       ('Pomarańcza', 'Owoce', 'kg', 5.00),
+       ('Truskawki', 'Owoce', 'kg', 12.00),
+       ('Gruszka', 'Owoce', 'kg', 4.00),
+
+       ('Marchewka', 'Warzywa', 'kg', 2.50),
+       ('Ziemniaki', 'Warzywa', 'kg', 1.50),
+       ('Pomidor', 'Warzywa', 'kg', 6.00),
+       ('Cebula', 'Warzywa', 'kg', 2.00),
+       ('Papryka', 'Warzywa', 'kg', 8.00),
+
+       ('Mleko', 'Nabiał', 'l', 2.80),
+       ('Jogurt', 'Nabiał', 'l', 4.00),
+       ('Ser żółty', 'Nabiał', 'kg', 20.00),
+       ('Masło', 'Nabiał', 'kg', 16.00),
+       ('Twaróg', 'Nabiał', 'kg', 10.00),
+
+       ('Kurczak', 'Mięso', 'kg', 12.00),
+       ('Wołowina', 'Mięso', 'kg', 30.00),
+       ('Wieprzowina', 'Mięso', 'kg', 20.00),
+       ('Indyk', 'Mięso', 'kg', 18.00),
+       ('Baranina', 'Mięso', 'kg', 40.00),
+
+       ('Makaron', 'Produkty zbożowe', 'kg', 5.00),
+       ('Ryż', 'Produkty zbożowe', 'kg', 4.50),
+       ('Kasza', 'Produkty zbożowe', 'kg', 3.50),
+       ('Płatki owsiane', 'Produkty zbożowe', 'kg', 4.00),
+       ('Chleb pełnoziarnisty', 'Produkty zbożowe', 'pcs', 7.00),
+
+       ('Cukier', 'Przyprawy', 'kg', 3.00),
+       ('Sól', 'Przyprawy', 'kg', 1.50),
+       ('Pieprz', 'Przyprawy', 'kg', 20.00),
+       ('Papryka słodka', 'Przyprawy', 'kg', 30.00),
+       ('Bazylia', 'Przyprawy', 'kg', 50.00),
+
+       ('Sok pomarańczowy', 'Napoje', 'l', 5.00),
+       ('Cola', 'Napoje', 'l', 4.00),
+       ('Woda mineralna', 'Napoje', 'l', 2.00),
+       ('Herbata', 'Napoje', 'pcs', 10.00),
+       ('Kawa', 'Napoje', 'pcs', 25.00),
+
+       ('Szampon', 'Kosmetyki', 'l', 15.00),
+       ('Mydło', 'Kosmetyki', 'pcs', 3.00),
+       ('Krem do twarzy', 'Kosmetyki', 'pcs', 20.00),
+       ('Pasta do zębów', 'Kosmetyki', 'pcs', 8.00),
+       ('Żel pod prysznic', 'Kosmetyki', 'l', 12.00);
+
+DROP PROCEDURE IF EXISTS AddList;
+DROP PROCEDURE IF EXISTS AddUser;
+DROP PROCEDURE IF EXISTS AddItem;
+DROP PROCEDURE IF EXISTS AddProduct;
+DROP PROCEDURE IF EXISTS RemoveList;
+DROP PROCEDURE IF EXISTS RemoveItem;
+DROP PROCEDURE IF EXISTS ChangeCount;
+DROP PROCEDURE IF EXISTS AccessToList;
+DROP PROCEDURE IF EXISTS ChangeListName;
+DROP PROCEDURE IF EXISTS CheckUserCredentials;
+
+create procedure AddUser(IN p_login varchar(30), IN p_password varchar(30), OUT p_userID int, OUT p_errorCode int)
+BEGIN
+    SELECT COUNT(*) INTO p_errorCode FROM Users WHERE Login = p_login;
+
+    IF p_errorCode = 0 THEN
+        INSERT INTO Users (Login, Password)
+        VALUES (p_login, p_password);
+
+        SELECT UserID INTO p_userID FROM Users WHERE Login = p_login;
+    END IF;
+    COMMIT;
+END;
+
+create procedure RemoveItem(IN p_listID int, IN p_productID int, OUT p_errorCode int)
+BEGIN
+    SELECT COUNT(*) INTO p_errorCode FROM ListsProducts WHERE ListID = p_listID AND ProductID = p_productID;
+
+    IF p_errorCode = 0 THEN
+        SET p_errorCode = -1;
+    ELSE
+        DELETE
+        FROM ListsProducts
+        WHERE ListID = p_listID
+          AND ProductID = p_productID;
+        COMMIT;
+
+        SELECT COUNT(*) INTO p_errorCode FROM ListsProducts WHERE ListID = p_listID AND ProductID = p_productID;
+    end if;
+
+END;
+
+create procedure AddItem(IN p_listID int, IN p_productID int, IN p_amount decimal(10, 2), OUT p_errorCode int)
+BEGIN
+    DECLARE v_actuallyAmount INT;
+
+    SET p_errorCode = 0;
+
+    IF (SELECT COUNT(*) FROM ListsProducts WHERE ListID = p_listID AND ProductID = p_productID) != 0 THEN
+        SELECT Quantity INTO v_actuallyAmount FROM ListsProducts WHERE ListID = p_listID AND ProductID = p_productID;
+        UPDATE ListsProducts
+        SET Quantity = (p_amount + v_actuallyAmount)
+        WHERE ListID = p_listID AND ProductID = p_productID;
+        SET p_errorCode = 2;
+    ELSE
+        INSERT INTO ListsProducts (ListID, ProductID, Quantity) VALUES (p_listID, p_productID, p_amount);
+        SELECT COUNT(*) INTO p_errorCode FROM ListsProducts WHERE ListID = p_listID AND ProductID = p_productID;
+    END IF;
+    COMMIT;
+END;
+
+create procedure AccessToList(IN p_listID int, IN p_login varchar(30), OUT p_errorCode int)
+BEGIN
+    DECLARE v_userID INT;
+    DECLARE v_flag INT;
+
+    SELECT UserID INTO v_userID FROM Users WHERE Login = p_login;
+
+    IF v_userID IS NOT null THEN
+        SELECT COUNT(*) INTO v_flag FROM UsersLists WHERE UserID = v_userID AND ListID = p_listID;
+        IF v_flag = 0 THEN
+            INSERT INTO UsersLists(UserID, ListID) VALUE (v_userID, p_listID);
+        ELSE
+            SET p_errorCode = -2;
+        END IF;
+    ELSE
+        SET p_errorCode = -1;
+    END IF;
+    COMMIT;
+END;
+
+create procedure ChangeListName(IN p_userID int, IN p_listID int, IN p_newName varchar(30), OUT p_errorCode int)
+BEGIN
+    SELECT COUNT(*)
+    INTO p_errorCode
+    FROM UsersLists ul
+             JOIN Lists l ON ul.ListID = l.ListID
+    WHERE UserID = p_userID
+      AND l.ListName = p_newName;
+
+    IF (SELECT COUNT(*) FROM UsersLists WHERE UserID = p_userID AND ListID = p_listID) = 1 AND p_errorCode = 0 THEN
+        UPDATE Lists SET ListName = p_newName WHERE ListID = p_listID;
+    END IF;
+
+END;
+
+create procedure RemoveList(IN p_userID int, IN p_listID int, OUT p_errorCode int)
+BEGIN
+    IF (SELECT COUNT(*) FROM UsersLists WHERE ListID = p_listID) = 1 THEN
+        DELETE FROM ListsProducts WHERE ListID = p_listID;
+        DELETE FROM UsersLists WHERE ListID = p_listID and UserID = p_userID;
+        DELETE FROM Lists WHERE ListID = p_listID;
+    ELSE
+        DELETE FROM UsersLists WHERE ListID = p_listID and UserID = p_userID;
+    END IF;
+
+    SELECT COUNT(*) INTO p_errorCode FROM UsersLists WHERE ListID = p_listID AND UserID = p_userID;
+END;
+
+create procedure AddList(IN p_userID int, IN p_listName varchar(30), OUT p_listID int, OUT p_errorCode int)
+BEGIN
+    SELECT COUNT(*)
+    INTO p_errorCode
+    FROM UsersLists ul
+             LEFT JOIN Lists l ON ul.ListID = l.ListID
+             LEFT JOIN Users u ON ul.UserID = u.UserID
+    WHERE u.UserID = p_userID
+      AND l.ListName = p_listName;
+
+    IF p_errorCode = 0 THEN
+        INSERT INTO Lists(ListName) VALUE (p_listName);
+        SELECT ListID INTO p_listID FROM Lists WHERE ListName = p_listName ORDER BY ListID DESC LIMIT 1;
+        INSERT INTO UsersLists(UserID, ListID) VALUE (p_userID, p_listID);
+        SELECT COUNT(*) INTO p_errorCode FROM UsersLists WHERE ListID = p_listID AND UserID = p_userID;
+    ELSE
+        SET p_errorCode = -1;
+    END IF;
+END;
+
+create procedure CheckUserCredentials(IN p_login varchar(30), IN p_password varchar(30), OUT p_userID int,
+                                      OUT p_errorCode int)
+BEGIN
+    DECLARE userCount INT;
+    DECLARE storedPassword VARCHAR(30);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+        END;
+
+    START TRANSACTION;
+
+    SELECT COUNT(*)
+    INTO userCount
+    FROM Users
+    WHERE Login = p_login;
+
+    IF userCount = 0 THEN
+        SET p_errorCode = 1;
+    ELSE
+        SELECT Password
+        into storedPassword
+        FROM Users
+        WHERE Login = p_login;
+
+        IF storedPassword = p_password THEN
+            SET p_errorCode = 0;
+            SELECT UserID INTO p_userID FROM Users WHERE Login = p_login;
+        ELSE
+            SET p_errorCode = 2;
+        END IF;
+    END IF;
+END;
+
+create procedure AddProduct(IN p_productName varchar(30), IN p_categoryName varchar(30),
+                            IN p_measure varchar(3), IN p_price double, OUT p_productID int,
+                            OUT p_errorCode int)
+BEGIN
+    SELECT COUNT(*) INTO p_errorCode FROM Products WHERE ProductName = p_productName;
+
+    IF p_errorCode != 0 THEN
+        SET p_errorCode = -1;
+    ELSE
+        IF p_measure IN ('pcs', 'l', 'kg', 'm') THEN
+            INSERT INTO Products(ProductName, CategoryName, Measure, Price)
+            VALUES (p_productName, p_categoryName, p_measure, p_price);
+
+            SELECT ProductID INTO p_productID FROM Products WHERE ProductName = p_productName;
+
+            SET p_errorCode = 0;
+        ELSE
+            SET p_errorCode = -2;
+        END IF;
+    END IF;
+
+    COMMIT;
+END;
+
+
+
+
+
+
+
+
+
+
+
+
